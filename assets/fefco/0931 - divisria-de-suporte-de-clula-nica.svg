@@ -1,0 +1,16 @@
+<svg version = "1.1" xmlns = "http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="113.306" height="150.706" viewbox = "0 0 113.306 150.706">
+	<g transform="translate(-51.1045,223.102) scale(1,-1) ">
+		<line x1="51.4573" y1="72.7492" x2="164.057" y2="72.7492" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="164.057" y1="72.7492" x2="164.057" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="164.057" y1="222.749" x2="144.057" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="142.757" y1="222.749" x2="72.7573" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="71.4573" y1="222.749" x2="51.4573" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="51.4573" y1="222.749" x2="51.4573" y2="72.7492" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="144.057" y1="222.749" x2="144.057" y2="146.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="144.057" y1="146.749" x2="142.757" y2="146.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="142.757" y1="146.749" x2="142.757" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="71.4573" y1="222.749" x2="71.4573" y2="146.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="71.4573" y1="146.749" x2="72.7573" y2="146.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="72.7573" y1="146.749" x2="72.7573" y2="222.749" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+	</g>
+</svg>

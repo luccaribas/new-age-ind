@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 240" role="img" aria-labelledby="title desc">
+  <title id="title">Logo New Age Embalagens</title>
+  <desc id="desc">Símbolo de caixa dourada aberta com o nome New Age Embalagens em tipografia escura.</desc>
+  <defs>
+    <linearGradient id="gold-face" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e6c77d"/>
+      <stop offset="100%" stop-color="#c8943f"/>
+    </linearGradient>
+    <linearGradient id="gold-lid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d9b86c"/>
+      <stop offset="100%" stop-color="#f0d79d"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(18 24)">
+    <polygon points="10,22 118,0 202,24 94,46" fill="url(#gold-lid)"/>
+    <polygon points="72,62 184,38 266,66 154,92" fill="url(#gold-face)"/>
+    <polygon points="24,92 132,68 132,176 24,116" fill="url(#gold-face)"/>
+    <polygon points="132,68 252,94 252,200 132,176" fill="#c28d36"/>
+    <polyline points="24,92 132,68 252,94" fill="none" stroke="#b27d28" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+
+  <g fill="#142230" font-family="Sora, Arial, sans-serif">
+    <text x="308" y="78" font-size="44" font-weight="700" letter-spacing="-0.5">Embalagens</text>
+    <text x="304" y="152" font-size="98" font-weight="800" letter-spacing="-3">new</text>
+    <text x="304" y="224" font-size="98" font-weight="800" letter-spacing="-3">age</text>
+  </g>
+</svg>

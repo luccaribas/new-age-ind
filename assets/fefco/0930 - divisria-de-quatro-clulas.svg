@@ -1,0 +1,12 @@
+<svg version = "1.1" xmlns = "http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="403.818" height="150.706" viewbox = "0 0 403.818 150.706">
+	<g transform="translate(-60.5496,204.577) scale(1,-1) ">
+		<line x1="60.9024" y1="54.2242" x2="261.809" y2="54.2242" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="263.109" y1="54.2242" x2="464.015" y2="54.2242" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="464.015" y1="54.2242" x2="464.015" y2="204.224" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="464.015" y1="204.224" x2="60.9024" y2="204.224" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="60.9024" y1="204.224" x2="60.9024" y2="54.2242" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="261.809" y1="54.2242" x2="261.809" y2="130.224" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="261.809" y1="130.224" x2="263.109" y2="130.224" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="263.109" y1="130.224" x2="263.109" y2="54.2242" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+	</g>
+</svg>

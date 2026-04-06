@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 240" role="img" aria-labelledby="title">
+  <title>EATON</title>
+  <rect width="860" height="240" fill="none"/>
+  <g fill="#1270d6">
+    <path d="M0 6h233l-18 63H88l-12 39h112l-16 55H59l-16 56H0z"/>
+    <path d="M308 6h219l-20 63H394v46h90l-17 54h-91v65h-66z"/>
+    <path d="M612 6h147l65 228h-72l-13-53h-78l-14 53h-68zm66 53-28 72h51z"/>
+    <path d="M247 234 324 6h83l78 228h-69l-13-46h-73l-14 46zm121-95-24-79-26 79z"/>
+  </g>
+  <circle cx="581" cy="120" r="31" fill="#1270d6"/>
+</svg>

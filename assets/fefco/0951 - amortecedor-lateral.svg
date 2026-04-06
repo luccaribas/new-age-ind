@@ -1,0 +1,24 @@
+<svg version = "1.1" xmlns = "http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="439.406" height="200.706" viewbox = "0 0 439.406 200.706">
+	<g transform="translate(-5.81827,264.035) scale(1,-1) ">
+		<line x1="86.171" y1="63.6824" x2="364.871" y2="63.6824" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="364.871" y1="263.682" x2="86.171" y2="263.682" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="364.871" y1="263.682" x2="444.871" y2="263.682" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="444.871" y1="263.682" x2="444.871" y2="63.6824" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="444.871" y1="63.6824" x2="364.871" y2="63.6824" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="364.871" y1="63.6824" x2="364.871" y2="263.682" stroke="rgb(255,255,0)" stroke-width="0.705556"/>
+		<line x1="86.171" y1="63.6824" x2="6.17104" y2="63.6824" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="6.17104" y1="63.6824" x2="6.17104" y2="263.682" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="6.17104" y1="263.682" x2="86.171" y2="263.682" stroke="rgb(255,0,0)" stroke-width="0.705556"/>
+		<line x1="86.171" y1="263.682" x2="86.171" y2="63.6824" stroke="rgb(255,255,0)" stroke-width="0.705556"/>
+		<line x1="225.521" y1="126.297" x2="225.521" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="234.005" y1="107.887" x2="234.005" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="229.763" y1="117.092" x2="229.763" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="221.279" y1="135.502" x2="221.279" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="217.037" y1="144.707" x2="217.037" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="212.795" y1="153.912" x2="212.795" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="238.247" y1="98.6824" x2="212.795" y2="98.6824" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="212.795" y1="153.912" x2="241.07" y2="125.594" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<path d="M241.07,125.594 a26.6045 26.6045 0 0 1 -2.82257,-26.9118" fill="none" stroke="rgb(64,128,128)" stroke-width="0"/>
+		<line x1="238.247" y1="98.6824" x2="212.795" y2="153.912" stroke="rgb(64,128,128)" stroke-width="0"/>
+	</g>
+</svg>

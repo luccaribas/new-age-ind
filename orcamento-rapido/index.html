@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orçamento Rápido de Caixas de Papelão | New Age Embalagens</title>
+  <meta name="description" content="Use o orçamento guiado da New Age Embalagens para definir modelo, onda, ECT e papel com mais rapidez e solicitar cotação com menos fricção.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://site.newage.ind.br/orcamento-rapido/">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="icon" type="image/svg+xml" href="../assets/logo-new-age.svg">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html" aria-label="New Age Embalagens">
+        <img class="brand-logo" src="../assets/logo-new-age.svg" alt="New Age Embalagens">
+        <span class="brand-copy"><small>Caixas de papelão ondulado para empresas</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Principal">
+        <a href="../index.html">Home</a>
+        <a href="../caixas-de-papelao-ondulado/index.html">Caixas de Papelão</a>
+        <a href="../modelos-fefco/index.html">Modelos FEFCO</a>
+        <a href="#orcamento" class="nav-cta">Solicitar Cotação</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Orçamento guiado</div>
+          <h1>A forma mais rápida de sair do zero para uma cotação técnica.</h1>
+          <p class="hero-text">Em vez de obrigar o comprador a dominar embalagem, o site conduz a decisão por objetivo de uso, transporte, empilhamento e impressão. O resultado vira uma recomendação inicial para acelerar o briefing comercial.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#configurador" data-track-click="cta_orcamento_page_configurador">Começar orçamento guiado</a>
+            <a class="btn btn-secondary" href="#portfolio-fefco" data-track-click="cta_orcamento_page_portfolio">Ver modelos FEFCO</a>
+            <a class="btn btn-secondary" href="tel:+551129378810" data-track-click="cta_orcamento_page_ligacao">Ligar agora</a>
+          </div>
+          <div class="path-chooser">
+            <a class="path-card" href="#configurador" data-track-click="path_orc_help_choose">
+              <strong>Quero ajuda para escolher</strong>
+              <span>Responda poucas perguntas e receba um direcionamento técnico inicial.</span>
+            </a>
+            <a class="path-card" href="#portfolio-fefco" data-track-click="path_orc_fefco_models">
+              <strong>Quero ver modelos FEFCO</strong>
+              <span>Compare estruturas padrão e selecione as que mais se aproximam da sua necessidade.</span>
+            </a>
+            <a class="path-card" href="#orcamento" data-track-click="path_orc_direct_order">
+              <strong>Já sei o que quero</strong>
+              <span>Envie as especificações direto no pedido técnico.</span>
+            </a>
+          </div>
+          <ul class="hero-trust">
+            <li>Fluxo guiado para quem ainda não definiu onda, ECT, papel ou modelo</li>
+            <li>Portfólio FEFCO integrado ao pedido</li>
+            <li>Formulário final pensado para compras B2B</li>
+          </ul>
+        </div>
+
+        <aside class="hero-card">
+          <div class="card-badge">Como funciona</div>
+          <div class="steps-grid">
+            <article class="step-card"><span>1</span><h3>Responder</h3><p>Informe uso, peso, fragilidade, transporte e impressão.</p></article>
+            <article class="step-card"><span>2</span><h3>Receber</h3><p>Veja uma recomendação inicial de formato, onda, ECT e papel.</p></article>
+            <article class="step-card"><span>3</span><h3>Selecionar</h3><p>Escolha um ou mais modelos FEFCO no portfólio.</p></article>
+            <article class="step-card"><span>4</span><h3>Enviar</h3><p>Finalize a solicitação com as informações da sua operação.</p></article>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-secondary btn-block" href="#orcamento" data-track-click="cta_orcamento_page_direto">Ir direto ao pedido técnico</a>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="configurador">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-kicker">Configurador</span>
+          <h2>Receba uma recomendação inicial em poucos cliques.</h2>
+          <p>Primeiro entendemos o uso real. Depois traduzimos isso em formato base, onda, ECT e tipo de papel para orientar a cotação.</p>
+        </div>
+        <div class="wizard-layout">
+          <form id="guided-wizard" class="wizard-card">
+            <div class="wizard-grid">
+              <label>O que você vai embalar?
+                <select name="uso" required>
+                  <option value="">Selecionar</option>
+                  <option value="ecommerce">E-commerce / despacho unitário</option>
+                  <option value="industria">Indústria / B2B / transporte interno</option>
+                  <option value="armazenagem">Armazenagem / centro de distribuição</option>
+                  <option value="alimento">Alimento / exigência sanitária</option>
+                </select>
+              </label>
+              <label>Peso total por caixa
+                <select name="peso" required>
+                  <option value="">Selecionar</option>
+                  <option value="leve">Até 1 kg</option>
+                  <option value="medio">1 a 5 kg</option>
+                  <option value="alto">5 a 15 kg</option>
+                  <option value="pesado">Acima de 15 kg</option>
+                </select>
+              </label>
+              <label>Fragilidade
+                <select name="fragilidade" required>
+                  <option value="">Selecionar</option>
+                  <option value="baixa">Baixa</option>
+                  <option value="media">Média</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </label>
+              <label>Transporte
+                <select name="transporte" required>
+                  <option value="">Selecionar</option>
+                  <option value="courier">Courier / encomenda</option>
+                  <option value="fracionado">Carga fracionada</option>
+                  <option value="paletizado">Paletizado</option>
+                  <option value="exportacao">Exportação</option>
+                </select>
+              </label>
+              <label>Empilhamento
+                <select name="empilhamento" required>
+                  <option value="">Selecionar</option>
+                  <option value="baixo">Nenhum ou até 2 caixas</option>
+                  <option value="medio">3 a 5 caixas</option>
+                  <option value="alto">6 ou mais caixas</option>
+                </select>
+              </label>
+              <label>Impressão
+                <select name="impressao" required>
+                  <option value="">Selecionar</option>
+                  <option value="sem">Sem impressão</option>
+                  <option value="simples">1 ou 2 cores</option>
+                  <option value="premium">Alta qualidade visual</option>
+                </select>
+              </label>
+            </div>
+            <button class="btn btn-primary" type="submit">Gerar recomendação inicial</button>
+            <p class="microcopy">O objetivo é reduzir a carga técnica do comprador e acelerar o envio de um pedido mais qualificado.</p>
+          </form>
+
+          <aside class="wizard-result" id="wizard-result">
+            <span class="section-kicker">Resultado guiado</span>
+            <h3>Preencha o configurador para ver a recomendação.</h3>
+            <p>Você verá formato base, onda sugerida, faixa de ECT, papel indicado e o melhor próximo passo para avançar com a cotação.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="portfolio-fefco">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-kicker">Portfólio FEFCO</span>
+          <h2>Escolha os modelos mais próximos da sua necessidade.</h2>
+          <p>Depois da recomendação inicial, selecione um ou mais modelos para deixar o pedido mais claro para o comercial.</p>
+        </div>
+        <div class="portfolio-toolbar">
+          <div class="portfolio-search-panel">
+            <label class="search-field">Buscar código, nome, aplicação ou problema<input type="search" id="fefco-search" placeholder="Ex.: vinho, e-commerce, pesada, display, 0427"></label>
+            <p class="portfolio-search-hint">Busque pelo produto, pela aplicação ou pelo código FEFCO. Os filtros abaixo usam apenas categorias que existem de forma objetiva no catálogo.</p>
+            <div class="portfolio-search-examples" aria-label="Exemplos de busca">
+              <span>Exemplos:</span>
+              <button type="button" class="portfolio-example-chip" data-search-example="caixa sedex">caixa sedex</button>
+              <button type="button" class="portfolio-example-chip" data-search-example="caixa americana">caixa americana</button>
+              <button type="button" class="portfolio-example-chip" data-search-example="porta garrafas">porta garrafas</button>
+              <button type="button" class="portfolio-example-chip" data-search-example="colmeia">colmeia</button>
+              <button type="button" class="portfolio-example-chip" data-search-example="cantoneira de palete">cantoneira de palete</button>
+            </div>
+            <div class="portfolio-filters-grid">
+              <label>Intenção de uso
+                <select id="portfolio-intent-filter">
+                  <option value="">Todos</option>
+                  <option value="correios">Envio Correios / Sedex</option>
+                  <option value="exportacao">Exportação / Pesados</option>
+                  <option value="pdv">Exposição PDV</option>
+                  <option value="interna">Proteção interna</option>
+                </select>
+              </label>
+              <label>Tipo de solução
+                <select id="portfolio-structure-filter">
+                  <option value="">Todos</option>
+                  <option value="caixa">Caixa fechada</option>
+                  <option value="bandeja">Bandeja / display</option>
+                  <option value="envoltorio">Pasta / envoltório / luva</option>
+                  <option value="acessorio">Acessório interno</option>
+                  <option value="especial">Telescópica / bliss / especial</option>
+                </select>
+              </label>
+              <label>Modo de montagem
+                <select id="portfolio-assembly-filter">
+                  <option value="">Todos</option>
+                  <option value="manual">Manual</option>
+                  <option value="automatica">Automática</option>
+                  <option value="instantanea">Instantânea (Série 0700)</option>
+                </select>
+              </label>
+              <label>Sustentabilidade
+                <select id="portfolio-sustainability-filter">
+                  <option value="">Todos</option>
+                  <option value="green">Selo Verde</option>
+                  <option value="residue_zero">Resíduo Zero</option>
+                </select>
+              </label>
+            </div>
+            <div class="portfolio-performance-grid">
+              <label class="portfolio-range-field">BCT mínimo / resistência
+                <input type="range" id="portfolio-bct-filter" min="1" max="5" step="1" value="1">
+                <span id="portfolio-bct-value">1+</span>
+              </label>
+              <div class="portfolio-check-group" aria-label="Filtros de insumos">
+                <label class="portfolio-check"><input type="checkbox" id="portfolio-zero-tape-filter"><span>Zero fita</span></label>
+                <label class="portfolio-check"><input type="checkbox" id="portfolio-zero-glue-filter"><span>Zero cola</span></label>
+                <label class="portfolio-check"><input type="checkbox" id="portfolio-guide-filter"><span>Somente com guia útil</span></label>
+              </div>
+            </div>
+            <div class="portfolio-filter-actions">
+              <button class="btn btn-secondary btn-small" type="button" id="portfolio-clear-filters">Limpar filtros</button>
+              <p id="portfolio-results-summary" class="portfolio-results-summary">Use os filtros para encontrar a caixa ideal mais rápido.</p>
+            </div>
+          </div>
+          <div class="selected-models-box">
+            <strong>Modelos selecionados</strong>
+            <div id="selected-models" class="selected-models-list">Nenhum modelo selecionado ainda.</div>
+          </div>
+        </div>
+        <div id="fefco-grid" class="portfolio-grid" aria-live="polite"></div>
+        <div class="portfolio-more">
+          <button class="btn btn-secondary" type="button" id="portfolio-toggle">Ver mais modelos</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="orcamento">
+      <div class="container form-section">
+        <div class="form-copy">
+          <span class="section-kicker">Pedido técnico</span>
+          <h2>Finalize o pedido de cotação com o briefing mais forte possível.</h2>
+          <p>Você pode chegar aqui com apoio do configurador, com seleção de modelos e com especificações diferentes por caixa. Isso reduz ida e volta e acelera a proposta comercial.</p>
+          <ul class="form-benefits">
+            <li>Mais clareza comercial logo no primeiro contato</li>
+            <li>Mais contexto técnico para o orçamento</li>
+            <li>Melhor aproveitamento do lead quente</li>
+            <li>Mais de um item personalizado no mesmo envio</li>
+          </ul>
+        </div>
+
+        <form class="lead-form lead-form-full" data-form-type="full" name="lead-completo-orcamento-rapido" method="POST">
+          <input type="hidden" name="form-name" value="lead-completo-orcamento-rapido">
+          <input type="hidden" name="form_name" value="Formulário completo orçamento rápido">
+          <input type="text" name="bot-field" hidden tabindex="-1" autocomplete="off">
+          <input type="hidden" name="utm_source">
+          <input type="hidden" name="utm_medium">
+          <input type="hidden" name="utm_campaign">
+          <input type="hidden" name="modelos_padrao" id="modelos_padrao">
+          <input type="hidden" name="modelos_especificacoes" id="modelos_especificacoes">
+          <input type="hidden" name="wizard_recomendacao" id="wizard_recomendacao">
+          <input type="hidden" name="itens_personalizados" id="itens_personalizados">
+
+          <div class="form-grid">
+            <label>Nome<input type="text" name="nome" required></label>
+            <label>Empresa<input type="text" name="empresa" required></label>
+            <label>CNPJ<input type="text" name="cnpj" placeholder="00.000.000/0000-00" required></label>
+            <label>Telefone<input type="tel" name="telefone" required></label>
+            <label>E-mail<input type="email" name="email" required></label>
+            <label>
+              Tipo de embalagem
+              <select name="tipo_embalagem" required>
+                <option value="">Selecione</option>
+                <option>Padrão FEFCO</option>
+                <option>Variação FEFCO</option>
+                <option>Preciso desenvolver do zero</option>
+              </select>
+            </label>
+
+            <label class="full-span">Modelos padrão selecionados<input type="text" id="modelos_padrao_preview" placeholder="Selecione no portfólio acima" readonly></label>
+            <div class="full-span specs-builder selected-models-fields">
+              <div class="specs-builder-header">
+                <strong>Especificações por caixa selecionada</strong>
+                <span>Cada modelo escolhido gera sua própria ficha técnica abaixo.</span>
+              </div>
+              <div id="model-specs-container" class="model-specs-container">
+                <div class="empty-specs-state">Selecione um ou mais modelos FEFCO no portfólio para abrir fichas técnicas independentes por caixa.</div>
+              </div>
+            </div>
+            <div class="full-span specs-builder direct-specs-builder">
+              <div class="specs-builder-header">
+                <strong>Não encontrou o que precisava entre os modelos padrão?</strong>
+                <span>Adicione um ou mais itens personalizados. Depois de completar o orçamento, a equipe comercial retorna rapidamente com a análise inicial.</span>
+              </div>
+              <div id="direct-specs-container" class="model-specs-container"></div>
+              <button class="btn btn-secondary" type="button" data-add-direct-spec>Adicionar outro item personalizado</button>
+            </div>
+
+            <label class="full-span">Observações<textarea name="observacoes" rows="5" placeholder="Descreva produto, prazo, urgência ou qualquer detalhe importante."></textarea></label>
+            <label class="checkbox full-span"><input type="checkbox" name="precisa_ajuda" value="Sim"><span>Ainda preciso de ajuda da equipe para validar o melhor caminho técnico.</span></label>
+          </div>
+
+          <button class="btn btn-primary btn-block" type="submit">Enviar pedido de cotação</button>
+          <p class="microcopy">As solicitações podem seguir para webhook ou CRM. Sem integração ativa, os dados continuam registrados localmente e o atendimento segue pelo WhatsApp.</p>
+          <p class="form-feedback" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p>New Age Embalagens • atendimento comercial para empresas • vendas@newage.ind.br • 011 2937 8810</p>
+    </div>
+  </footer>
+
+  <script src="../fefco-data.js"></script>
+  <script src="../fefco-guides.js"></script>
+  <script src="../fefco-meta.js"></script>
+  <script src="../script.js"></script>
+</body>
+</html>
