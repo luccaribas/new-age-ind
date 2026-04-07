@@ -79,7 +79,7 @@
         <div class="section-heading">
           <span class="section-kicker">Configurador</span>
           <h2>Receba uma recomendação inicial em poucos cliques.</h2>
-          <p>Primeiro entendemos o uso real. Depois traduzimos isso em formato base, onda, ECT e tipo de papel para orientar a cotação.</p>
+          <p>Primeiro entendemos o uso real. Depois traduzimos isso em formato base, parede, onda, ECT, BCT orientativo, gramatura e tipo de papel para orientar a cotação.</p>
         </div>
         <div class="wizard-layout">
           <form id="guided-wizard" class="wizard-card">
@@ -135,16 +135,130 @@
                   <option value="premium">Alta qualidade visual</option>
                 </select>
               </label>
+              <label>Armazenagem
+                <select name="armazenagem" required>
+                  <option value="">Selecionar</option>
+                  <option value="curta">Até 7 dias</option>
+                  <option value="media">8 a 30 dias</option>
+                  <option value="longa">Acima de 30 dias</option>
+                </select>
+              </label>
+              <label>Ambiente / umidade
+                <select name="umidade" required>
+                  <option value="">Selecionar</option>
+                  <option value="seca">Seco</option>
+                  <option value="umida">Úmido</option>
+                  <option value="severa">Muito úmido / câmara fria</option>
+                </select>
+              </label>
+              <label>Contato direto com alimento?
+                <select name="contato_alimento" required>
+                  <option value="">Selecionar</option>
+                  <option value="nao">Não</option>
+                  <option value="sim">Sim</option>
+                </select>
+              </label>
+              <label>Prioridade do projeto
+                <select name="prioridade" required>
+                  <option value="">Selecionar</option>
+                  <option value="custo">Menor custo</option>
+                  <option value="equilibrio">Equilíbrio</option>
+                  <option value="protecao">Máxima proteção</option>
+                </select>
+              </label>
             </div>
             <button class="btn btn-primary" type="submit">Gerar recomendação inicial</button>
-            <p class="microcopy">O objetivo é reduzir a carga técnica do comprador e acelerar o envio de um pedido mais qualificado.</p>
+            <p class="microcopy">O objetivo é reduzir a carga técnica do comprador e acelerar o envio de um pedido mais qualificado, com explicação clara dos critérios usados.</p>
           </form>
 
           <aside class="wizard-result" id="wizard-result">
             <span class="section-kicker">Resultado guiado</span>
             <h3>Preencha o configurador para ver a recomendação.</h3>
-            <p>Você verá formato base, onda sugerida, faixa de ECT, papel indicado e o melhor próximo passo para avançar com a cotação.</p>
+            <p>Você verá formato base, parede, onda sugerida, faixa de ECT, BCT orientativo, papel indicado, gramatura inicial e o melhor próximo passo para avançar com a cotação.</p>
           </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-kicker">Guia técnico</span>
+          <h2>Entenda as especificações antes de fechar o pedido.</h2>
+          <p>Este bloco traduz a linguagem de engenharia de embalagem para compras e operação. Ele ajuda a interpretar o resultado do configurador e a montar um briefing mais completo.</p>
+        </div>
+        <div class="spec-guide-grid">
+          <article class="spec-card">
+            <h3>BCT</h3>
+            <p><strong>Box Compression Test</strong> é a resistência da caixa montada sob compressão vertical. Na prática, indica quanto empilhamento a embalagem aguenta sem colapsar.</p>
+            <ul class="guide-list">
+              <li>Use como referência principal quando houver paletização, armazenagem ou cargas sobrepostas.</li>
+              <li>Quanto maior o tempo de estoque e a umidade, maior a margem de segurança recomendada.</li>
+              <li>No configurador, o BCT aparece como faixa orientativa, não como laudo final de laboratório.</li>
+            </ul>
+          </article>
+          <article class="spec-card">
+            <h3>ECT</h3>
+            <p><strong>Edge Crush Test</strong> mede a resistência da borda do papelão ondulado. É a base mais usada para especificar “coluna” no mercado e impacta diretamente a capacidade de empilhamento.</p>
+            <ul class="guide-list">
+              <li>Use quando a prioridade for resistência estrutural da caixa.</li>
+              <li>ECT mais alto normalmente significa melhor desempenho em stacking.</li>
+              <li>ECT não substitui a análise do formato nem dos recortes da caixa.</li>
+            </ul>
+          </article>
+          <article class="spec-card">
+            <h3>Gramatura</h3>
+            <p>Gramatura é a massa do papel por metro quadrado, normalmente em <strong>g/m²</strong>. Ela influencia custo, rigidez, superfície de impressão e composição do liner/miolo.</p>
+            <ul class="guide-list">
+              <li>Gramatura maior não significa, sozinha, melhor caixa.</li>
+              <li>O ideal é combinar gramatura, onda, ECT e uso logístico.</li>
+              <li>Para impressão premium, a superfície do liner é tão importante quanto a massa do papel.</li>
+            </ul>
+          </article>
+          <article class="spec-card">
+            <h3>Papel e liner</h3>
+            <p>O papel externo define apresentação e parte da resistência. Em termos práticos, a decisão costuma girar entre <strong>Kraft</strong>, <strong>Branco</strong> e <strong>Reciclado</strong>.</p>
+            <ul class="guide-list">
+              <li><strong>Kraft</strong>: melhor robustez geral e bom desempenho em transporte.</li>
+              <li><strong>Branco</strong>: indicado quando a arte e a leitura visual importam mais.</li>
+              <li><strong>Reciclado</strong>: opção de custo, mas exige validação do nível de esforço logístico.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="wave-guide">
+          <div class="wave-guide-copy">
+            <h3>Quando usar cada onda</h3>
+            <p>As ondas mudam espessura, rigidez, amortecimento, impressão e ocupação volumétrica. Use a tabela como referência comercial inicial.</p>
+          </div>
+          <div class="wave-table">
+            <div class="wave-row wave-row-head">
+              <span>Onda</span>
+              <span>Quando faz mais sentido</span>
+              <span>Pontos fortes</span>
+            </div>
+            <div class="wave-row">
+              <span><strong>E</strong></span>
+              <span>E-commerce leve, caixas premium, impressão de alta qualidade</span>
+              <span>Visual melhor, menor volume, boa precisão de dobra</span>
+            </div>
+            <div class="wave-row">
+              <span><strong>B</strong></span>
+              <span>Uso geral, varejo, cargas leves a médias, boa produtividade</span>
+              <span>Boa rigidez, resistência a amassamento e custo equilibrado</span>
+            </div>
+            <div class="wave-row">
+              <span><strong>C</strong></span>
+              <span>Proteção intermediária, produtos frágeis e caixas de armazenagem</span>
+              <span>Mais amortecimento e coluna que a micro-onda</span>
+            </div>
+            <div class="wave-row">
+              <span><strong>BC</strong></span>
+              <span>Paletização, exportação, carga pesada, empilhamento severo</span>
+              <span>Maior robustez estrutural e melhor reserva para ambiente severo</span>
+            </div>
+          </div>
+          <p class="spec-note">Regra prática: quanto maior o esforço logístico, mais a decisão deve migrar de “visual” para “resistência”.</p>
         </div>
       </div>
     </section>
