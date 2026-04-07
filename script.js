@@ -1064,7 +1064,12 @@ function normalizeBrokenText(text) {
 }
 
 function normalizePageContent() {
-  if (!document?.body) return;
+  if (
+    typeof document === "undefined" ||
+    !document.body ||
+    typeof document.createTreeWalker !== "function" ||
+    typeof NodeFilter === "undefined"
+  ) return;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   let node;
   while ((node = walker.nextNode())) {
@@ -1088,6 +1093,23 @@ function normalizePageContent() {
   });
 
   document.title = normalizeBrokenText(document.title);
+}
+
+function publishDiagnostics() {
+  window.NEWAGE_DIAGNOSTICS = {
+    models: Array.isArray(window.FEFCO_MODELS) ? window.FEFCO_MODELS.length : 0,
+    guides: Object.keys(window.FEFCO_GUIDES || {}).length,
+    meta: Object.keys(window.FEFCO_META || {}).length,
+    currentPath: window.location.pathname
+  };
+}
+
+function safeRun(label, callback) {
+  try {
+    callback();
+  } catch (error) {
+    console.error(`[newage] Falha em ${label}`, error);
+  }
 }
 
 function translateModelNameToPortuguese(name) {
@@ -1801,17 +1823,18 @@ function attachFormHandlers() {
 modalCloseButtons.forEach((button) => button.addEventListener("click", closeSuccessModal));
 if (modal) modal.addEventListener("click", (event) => { if (event.target === modal) closeSuccessModal(); });
 
-hydrateTrackingIds();
-trackPageContext();
-applyUtmToForms();
-attachClickTracking();
-normalizePageContent();
-renderPortfolio(window.FEFCO_MODELS || []);
-updateSelectedModelsUi();
-renderModelSpecs();
-attachWizard();
-attachDirectSpecsControls();
-attachCnpjMasks();
-attachFormHandlers();
-renderControlPanel();
+safeRun("publishDiagnostics", publishDiagnostics);
+safeRun("hydrateTrackingIds", hydrateTrackingIds);
+safeRun("trackPageContext", trackPageContext);
+safeRun("applyUtmToForms", applyUtmToForms);
+safeRun("attachClickTracking", attachClickTracking);
+safeRun("normalizePageContent", normalizePageContent);
+safeRun("renderPortfolio", () => renderPortfolio(window.FEFCO_MODELS || []));
+safeRun("updateSelectedModelsUi", updateSelectedModelsUi);
+safeRun("renderModelSpecs", renderModelSpecs);
+safeRun("attachWizard", attachWizard);
+safeRun("attachDirectSpecsControls", attachDirectSpecsControls);
+safeRun("attachCnpjMasks", attachCnpjMasks);
+safeRun("attachFormHandlers", attachFormHandlers);
+safeRun("renderControlPanel", renderControlPanel);
 
