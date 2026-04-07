@@ -35,7 +35,7 @@ const state = {
     guided: false,
     zeroTape: false,
     zeroGlue: false,
-    bct: 1
+    bct: 0
   }
 };
 
@@ -1318,7 +1318,7 @@ function modelMatchesPortfolioFilters(model, insights, query) {
   if (state.portfolioFilters.guided && !FEFCO_GUIDES[model.code]) return false;
   if (state.portfolioFilters.zeroTape && !insights.meta.zero_tape) return false;
   if (state.portfolioFilters.zeroGlue && !insights.meta.zero_glue) return false;
-  if (Number(insights.meta.bct_rating || 0) < Number(state.portfolioFilters.bct || 1)) return false;
+  if (Number(state.portfolioFilters.bct || 0) > 0 && Number(insights.meta.bct_rating || 0) < Number(state.portfolioFilters.bct || 0)) return false;
   return true;
 }
 
@@ -1348,7 +1348,7 @@ function resetPortfolioFilters() {
     guided: false,
     zeroTape: false,
     zeroGlue: false,
-    bct: 1
+    bct: 0
   };
 
   const intentSelect = document.getElementById("portfolio-intent-filter");
@@ -1367,8 +1367,8 @@ function resetPortfolioFilters() {
   if (guideCheck) guideCheck.checked = false;
   if (zeroTapeCheck) zeroTapeCheck.checked = false;
   if (zeroGlueCheck) zeroGlueCheck.checked = false;
-  if (bctInput) bctInput.value = "1";
-  if (bctValue) bctValue.textContent = "1+";
+  if (bctInput) bctInput.value = "0";
+  if (bctValue) bctValue.textContent = "Todos";
 }
 
 function renderPortfolio(models) {
@@ -1397,7 +1397,7 @@ function renderPortfolio(models) {
       state.portfolioFilters.guided ||
       state.portfolioFilters.zeroTape ||
       state.portfolioFilters.zeroGlue ||
-      Number(state.portfolioFilters.bct || 1) > 1
+      Number(state.portfolioFilters.bct || 0) > 0
     );
     if (hasAdvancedFilter) return items;
     return [...items].sort((left, right) => {
@@ -1432,7 +1432,7 @@ function renderPortfolio(models) {
       if (state.portfolioFilters.guided) summaryBits.push("somente com guia útil");
       if (state.portfolioFilters.zeroTape) summaryBits.push("zero fita");
       if (state.portfolioFilters.zeroGlue) summaryBits.push("zero cola");
-      if (Number(state.portfolioFilters.bct || 1) > 1) summaryBits.push(`BCT ${state.portfolioFilters.bct}+`);
+      if (Number(state.portfolioFilters.bct || 0) > 0) summaryBits.push(`BCT ${state.portfolioFilters.bct}+`);
       resultsSummary.textContent = prioritized.length
         ? `${prioritized.length} modelo(s) encontrado(s)${summaryBits.length ? ` com ${summaryBits.join(", ")}` : ""}.`
         : "Nenhum modelo encontrado com essa combinação. Tente abrir um filtro ou buscar por outro termo.";
@@ -1583,8 +1583,8 @@ function renderPortfolio(models) {
     }
     if (bctFilter) {
       bctFilter.addEventListener("input", (event) => {
-        state.portfolioFilters.bct = Number(event.target.value || 1);
-        if (bctValue) bctValue.textContent = `${state.portfolioFilters.bct}+`;
+        state.portfolioFilters.bct = Number(event.target.value || 0);
+        if (bctValue) bctValue.textContent = state.portfolioFilters.bct > 0 ? `${state.portfolioFilters.bct}+` : "Todos";
         state.showAllModels = false;
         draw(searchInput?.value || "");
       });
