@@ -884,11 +884,59 @@ img { max-width: 100%; display: block; }
 .site-footer { padding: 30px 0 110px; }
 .footer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 
-.whatsapp-float {
+.whatsapp-launcher {
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 25;
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.whatsapp-quick-actions {
+  display: grid;
+  gap: 10px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(37, 211, 102, 0.18);
+  box-shadow: 0 22px 48px rgba(15, 76, 92, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.whatsapp-launcher.is-open .whatsapp-quick-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.whatsapp-quick-action {
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 76, 92, 0.12);
+  background: rgba(15, 76, 92, 0.04);
+  color: var(--primary);
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.whatsapp-quick-action:hover {
+  background: rgba(37, 211, 102, 0.12);
+  border-color: rgba(37, 211, 102, 0.28);
+  transform: translateY(-1px);
+}
+
+.whatsapp-float {
+  position: fixed;
   min-width: 156px;
   min-height: 58px;
   padding: 0 18px;
@@ -900,6 +948,8 @@ img { max-width: 100%; display: block; }
   color: white;
   font-weight: 800;
   box-shadow: 0 18px 40px rgba(37, 211, 102, 0.34);
+  border: 0;
+  cursor: pointer;
 }
 
 .success-modal {
@@ -1186,7 +1236,16 @@ img { max-width: 100%; display: block; }
   .highlight-box, .final-cta-box { flex-direction: column; align-items: flex-start; }
   .quick-quote-shell { flex-direction: column; align-items: flex-start; }
   .site-footer { padding-bottom: 120px; }
-  .whatsapp-float { right: 14px; left: 14px; bottom: 14px; min-width: auto; }
+  .whatsapp-launcher {
+    right: 14px;
+    left: 14px;
+    bottom: 14px;
+    justify-items: stretch;
+  }
+  .whatsapp-quick-actions {
+    width: 100%;
+  }
+  .whatsapp-float { min-width: auto; width: 100%; }
   .hero-card, .lead-form-full, .success-modal-card, .wizard-card, .wizard-result, .selected-models-box { padding: 22px; }
   .hero-card .steps-grid,
   .hero-card .solution-grid,

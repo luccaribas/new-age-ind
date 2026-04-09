@@ -150,7 +150,11 @@ function buildIntentMessage(intent = "default") {
     help_choose: "Olá, preciso de ajuda para escolher a caixa ideal para a minha operação.",
     portfolio: "Olá, estou comparando modelos FEFCO e quero orientação comercial.",
     direct_order: "Olá, já tenho um briefing e quero avançar com a cotação técnica.",
-    support: "Olá, quero falar com o comercial sobre embalagens de papelão ondulado."
+    support: "Olá, quero falar com o comercial sobre embalagens de papelão ondulado.",
+    minimum_order: "Olá, gostaria de entender a quantidade mínima para orçamento e produção.",
+    delivery_time: "Olá, quero consultar prazo de produção e entrega.",
+    custom_project: "Olá, preciso de uma caixa sob medida e quero orientação comercial.",
+    send_reference: "Olá, quero enviar uma referência de caixa, foto ou medida para avaliação."
   };
   return [
     byIntent[intent] || byIntent.default,
@@ -217,15 +221,29 @@ function ensureSuccessModal() {
 
 function ensureWhatsAppFloat() {
   if (!normalizeWhatsappNumber(runtimeConfig.whatsappNumber)) return;
-  if (document.querySelector(".whatsapp-float")) return;
-  const link = document.createElement("a");
-  link.className = "whatsapp-float";
-  link.href = buildWhatsAppLink(buildIntentMessage("support"));
-  link.target = "_blank";
-  link.rel = "noopener";
-  link.textContent = "WhatsApp comercial";
-  link.setAttribute("data-track-click", "cta_whatsapp_float");
-  document.body.appendChild(link);
+  if (document.querySelector(".whatsapp-launcher")) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "whatsapp-launcher";
+  wrapper.innerHTML = `
+    <div class="whatsapp-quick-actions" aria-label="Perguntas rápidas no WhatsApp">
+      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="help_choose">Preciso de ajuda para escolher</button>
+      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="delivery_time">Quero consultar prazo</button>
+      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="minimum_order">Quero entender quantidade mínima</button>
+      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="send_reference">Quero enviar uma referência</button>
+    </div>
+    <button type="button" class="whatsapp-float" data-whatsapp-toggle aria-expanded="false">WhatsApp comercial</button>
+  `;
+  document.body.appendChild(wrapper);
+
+  const toggle = wrapper.querySelector("[data-whatsapp-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const isOpen = wrapper.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      trackEvent("whatsapp_handoff", { destination: isOpen ? "launcher_open" : "launcher_close" });
+    });
+  }
 }
 
 function attachWhatsAppIntents() {
@@ -238,6 +256,8 @@ function attachWhatsAppIntents() {
       if (!link) return;
       window.open(link, "_blank", "noopener");
       trackEvent("whatsapp_handoff", { destination: intent });
+      const launcher = document.querySelector(".whatsapp-launcher");
+      if (launcher) launcher.classList.remove("is-open");
     });
   });
 }
