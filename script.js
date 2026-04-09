@@ -237,9 +237,10 @@ async function submitToEndpoint(data) {
   if (runtimeConfig.formEndpoint) {
     const response = await fetch(runtimeConfig.formEndpoint, {
       method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(data)
     });
-    if (!response.ok) throw new Error("Falha no envio para o endpoint Configurado.");
     return true;
   }
   return false;
