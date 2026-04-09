@@ -1,5 +1,5 @@
 ﻿const SITE_CONFIG = {
-  whatsappNumber: "",
+  whatsappNumber: "551129378810",
   businessEmail: "vendas@newage.ind.br",
   formEndpoint: "https://script.google.com/macros/s/AKfycbwJYFnrkMk797-aYGDEbXA1qyT98ObNk0EAtIUxSO_B43mCO-5KVTnWHR4vVGTDZ2og/exec",
   gaMeasurementId: "",
@@ -53,9 +53,8 @@ const state = {
   }
 };
 
-const modal = document.getElementById("success-modal");
-const modalWhatsapp = document.querySelector(".modal-whatsapp");
-const modalCloseButtons = document.querySelectorAll(".modal-close, .modal-close-action");
+let modal = document.getElementById("success-modal");
+let modalWhatsapp = document.querySelector(".modal-whatsapp");
 const FEFCO_GUIDES = window.FEFCO_GUIDES || {};
 const FEFCO_META = window.FEFCO_META || {};
 const selectedModelsContainer = document.getElementById("selected-models");
@@ -68,6 +67,10 @@ const modelSpecsContainer = document.getElementById("model-specs-container");
 const directSpecsContainer = document.getElementById("direct-specs-container");
 const directSpecsField = document.getElementById("itens_personalizados");
 const portfolioToggle = document.getElementById("portfolio-toggle");
+
+function normalizeWhatsappNumber(value) {
+  return (value || "").replace(/\D/g, "");
+}
 
 function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -108,33 +111,62 @@ function formDataToObject(form) {
   return object;
 }
 
+function clipText(value, max = 220) {
+  const normalized = String(value || "").replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  return normalized.length > max ? `${normalized.slice(0, max - 1)}…` : normalized;
+}
+
+function getCompactLeadSummary(data) {
+  const parts = [];
+  if (data.tipo_embalagem) parts.push(`Tipo: ${data.tipo_embalagem}`);
+  if (data.modelos_padrao) parts.push(`Modelos: ${clipText(data.modelos_padrao, 80)}`);
+  if (data.wizard_recomendacao) parts.push("Com recomendacao guiada");
+  if (data.itens_personalizados) parts.push("Com item personalizado");
+  if (data.precisa_ajuda) parts.push(`Ajuda: ${data.precisa_ajuda}`);
+  return parts.join(" | ");
+}
+
 function buildLeadMessage(data) {
   const lines = [
     "Olá, quero solicitar um orçamento.",
-    `Formulário: ${data.form_name || "-"}`,
-    `Nome: ${data.nome || "-"}`,
-    `Empresa: ${data.empresa || "-"}`,
-    `CNPJ: ${data.cnpj || "-"}`,
+    `${data.nome || "-"} | ${data.empresa || "-"}`,
     `Telefone: ${data.telefone || "-"}`,
     `E-mail: ${data.email || "-"}`,
-    `Tipo de embalagem: ${data.tipo_embalagem || "-"}`,
-    `Modelos padrão: ${data.modelos_padrao || "-"}`,
-    `Especificações por modelo: ${data.modelos_especificacoes || "-"}`,
-    `Itens personalizados: ${data.itens_personalizados || "-"}`,
-    `Precisa de ajuda: ${data.precisa_ajuda || "Não"}`,
-    `Recomendação guiada: ${data.wizard_recomendacao || "-"}`,
-    `Observações: ${data.observacoes || "-"}`,
-    `Página: ${data.page_title || "-"} | ${data.page_url || "-"}`,
-    `Origem anterior: ${data.referrer || "-"}`,
-    `Dispositivo: ${data.device_type || "-"}`,
-    `UTM Source: ${data.utm_source || "-"}`,
-    `UTM Medium: ${data.utm_medium || "-"}`,
-    `UTM Campaign: ${data.utm_campaign || "-"}`
-  ];
+    getCompactLeadSummary(data) || "Sem resumo adicional.",
+    data.modelos_especificacoes ? `Especificações: ${clipText(data.modelos_especificacoes, 320)}` : "",
+    data.itens_personalizados ? `Itens personalizados: ${clipText(data.itens_personalizados, 320)}` : "",
+    data.observacoes ? `Observações: ${clipText(data.observacoes, 260)}` : "",
+    data.page_url ? `Página: ${data.page_url}` : ""
+  ].filter(Boolean);
   return lines.join("\n");
 }
 
+function buildIntentMessage(intent = "default") {
+  const path = window.location.pathname || "/";
+  const selected = state.selectedModels.length ? `Modelos em analise: ${state.selectedModels.join(", ")}.` : "";
+  const byIntent = {
+    default: "Olá, quero falar com a New Age Embalagens sobre uma cotação.",
+    help_choose: "Olá, preciso de ajuda para escolher a caixa ideal para a minha operação.",
+    portfolio: "Olá, estou comparando modelos FEFCO e quero orientação comercial.",
+    direct_order: "Olá, já tenho um briefing e quero avançar com a cotação técnica.",
+    support: "Olá, quero falar com o comercial sobre embalagens de papelão ondulado."
+  };
+  return [
+    byIntent[intent] || byIntent.default,
+    selected,
+    `Página atual: ${path}`
+  ].filter(Boolean).join("\n");
+}
+
+function buildWhatsAppLink(message) {
+  const number = normalizeWhatsappNumber(runtimeConfig.whatsappNumber);
+  if (!number) return "";
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
 function openSuccessModal(whatsAppLink) {
+  ensureSuccessModal();
   if (!modal || !modalWhatsapp || !whatsAppLink) return;
   modalWhatsapp.href = whatsAppLink;
   modal.classList.add("is-open");
@@ -146,6 +178,68 @@ function closeSuccessModal() {
   if (!modal) return;
   modal.classList.remove("is-open");
   modal.setAttribute("aria-hidden", "true");
+}
+
+function ensureSuccessModal() {
+  let successModal = document.getElementById("success-modal");
+  if (successModal) {
+    modal = successModal;
+    modalWhatsapp = successModal.querySelector(".modal-whatsapp");
+    return successModal;
+  }
+
+  successModal = document.createElement("div");
+  successModal.id = "success-modal";
+  successModal.className = "success-modal";
+  successModal.setAttribute("aria-hidden", "true");
+  successModal.innerHTML = `
+    <div class="success-modal-card">
+      <button class="modal-close" type="button" aria-label="Fechar" data-success-close>&times;</button>
+      <span class="section-kicker">Pedido enviado</span>
+      <h2>Seu pedido foi recebido.</h2>
+      <p>Se quiser agilizar o atendimento, envie o resumo também pelo WhatsApp comercial.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-block modal-whatsapp" href="#" target="_blank" rel="noopener">Enviar resumo no WhatsApp</a>
+        <button class="btn btn-secondary btn-block modal-close-action" type="button" data-success-close>Fechar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(successModal);
+  modal = successModal;
+  modalWhatsapp = successModal.querySelector(".modal-whatsapp");
+  successModal.addEventListener("click", (event) => {
+    if (event.target === successModal || event.target.closest("[data-success-close]")) {
+      closeSuccessModal();
+    }
+  });
+  return successModal;
+}
+
+function ensureWhatsAppFloat() {
+  if (!normalizeWhatsappNumber(runtimeConfig.whatsappNumber)) return;
+  if (document.querySelector(".whatsapp-float")) return;
+  const link = document.createElement("a");
+  link.className = "whatsapp-float";
+  link.href = buildWhatsAppLink(buildIntentMessage("support"));
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = "WhatsApp comercial";
+  link.setAttribute("data-track-click", "cta_whatsapp_float");
+  document.body.appendChild(link);
+}
+
+function attachWhatsAppIntents() {
+  if (!normalizeWhatsappNumber(runtimeConfig.whatsappNumber)) return;
+  document.querySelectorAll("[data-whatsapp-intent]").forEach((element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      const intent = element.getAttribute("data-whatsapp-intent") || "default";
+      const link = buildWhatsAppLink(buildIntentMessage(intent));
+      if (!link) return;
+      window.open(link, "_blank", "noopener");
+      trackEvent("whatsapp_handoff", { destination: intent });
+    });
+  });
 }
 
 function ensureGuideModal() {
@@ -1927,9 +2021,9 @@ function attachFormHandlers() {
   });
 }
 
-modalCloseButtons.forEach((button) => button.addEventListener("click", closeSuccessModal));
-if (modal) modal.addEventListener("click", (event) => { if (event.target === modal) closeSuccessModal(); });
-
+safeRun("ensureSuccessModal", ensureSuccessModal);
+safeRun("ensureWhatsAppFloat", ensureWhatsAppFloat);
+safeRun("attachWhatsAppIntents", attachWhatsAppIntents);
 safeRun("publishDiagnostics", publishDiagnostics);
 safeRun("hydrateTrackingIds", hydrateTrackingIds);
 safeRun("trackPageContext", trackPageContext);
