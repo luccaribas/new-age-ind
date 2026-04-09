@@ -1,7 +1,7 @@
 ﻿const SITE_CONFIG = {
   whatsappNumber: "",
   businessEmail: "vendas@newage.ind.br",
-  formEndpoint: "",
+  formEndpoint: "https://script.google.com/macros/s/AKfycbwJYFnrkMk797-aYGDEbXA1qyT98ObNk0EAtIUxSO_B43mCO-5KVTnWHR4vVGTDZ2og/exec",
   gaMeasurementId: "",
   metaPixelId: ""
 };
@@ -1610,49 +1610,75 @@ function renderPortfolio(models) {
 
 function buildRecommendation(data) {
   let formato = getModelLabelByCode("0201");
+  let parede = "Parede simples";
   let onda = "B";
-  let ect = "5 a 7";
+  let ect = "4 a 5 kN/m";
+  let bct = "Baixo a moderado";
   let papel = "Kraft";
+  let gramatura = "Liners 125 a 175 g/m² | Miolo 90 a 125 g/m²";
   let Confiança = "Média";
   const motivos = [];
+  const alertas = [];
+
+  if (data.uso === "ecommerce") {
+    formato = getModelLabelByCode("0427");
+    motivos.push("expedição unitária pede formato postal mais previsível");
+  }
 
   if (data.uso === "ecommerce" && data.peso === "leve" && data.impressao === "premium") {
     formato = getModelLabelByCode("0427");
+    parede = "Parede simples";
     onda = "E";
-    ect = "3 a 5";
+    ect = "3 a 5 kN/m";
+    bct = "Baixo";
     papel = "Branco";
+    gramatura = "Liners 125 a 150 g/m² | Miolo 90 a 105 g/m²";
     Confiança = "Alta";
     motivos.push("prioridade para apresentação visual e envio unitário");
   }
 
   if (data.peso === "medio" || data.fragilidade === "alta") {
     onda = data.impressao === "premium" ? "E ou B" : "B ou C";
-    ect = "5 a 7";
+    ect = "5 a 7 kN/m";
+    bct = "Moderado";
+    gramatura = data.impressao === "premium"
+      ? "Liners 150 a 175 g/m² | Miolo 105 a 125 g/m²"
+      : "Liners 150 a 200 g/m² | Miolo 105 a 150 g/m²";
     Confiança = "Alta";
     motivos.push("produto com maior sensibilidade ou peso intermediário");
   }
 
   if (data.transporte === "paletizado" || data.empilhamento === "alto" || data.peso === "alto") {
     formato = getModelLabelByCode("0201");
+    parede = "Parede dupla";
     onda = "BC";
-    ect = "7 a 10";
+    ect = "7 a 10 kN/m";
+    bct = "Alto";
     papel = "Kraft";
+    gramatura = "Liners 175 a 250 g/m² | Combinação para parede dupla";
     Confiança = "Alta";
     motivos.push("necessidade maior de empilhamento e robustez");
   }
 
   if (data.transporte === "exportacao" || data.peso === "pesado") {
     formato = "0201 reforcado ou projeto especial";
+    parede = "Parede dupla ou tripla";
     onda = "BC";
-    ect = "10 a 14+";
+    ect = "10 a 14+ kN/m";
+    bct = "Muito alto";
     papel = "Kraft";
+    gramatura = "Liners 200 a 250+ g/m² | Combinação reforçada";
     Confiança = "Média/Alta";
     motivos.push("cenário mais severo de transporte ou carga elevada");
+    alertas.push("casos de exportação ou peso muito alto pedem validação técnica e, idealmente, teste físico");
   }
 
   if (data.uso === "alimento") {
     papel = "Branco ou Kraft com validação de compliance";
     motivos.push("avaliar conformidade para contato com alimento");
+    if (data.contato_alimento === "sim") {
+      alertas.push("contato direto com alimento exige validação do material conforme compliance sanitário do fornecedor");
+    }
   }
 
   if (data.impressao === "simples") {
@@ -1663,13 +1689,52 @@ function buildRecommendation(data) {
     motivos.push("se a arte for prioridade, avaliar micro-onda ou solução especial");
   }
 
+  if (data.armazenagem === "longa") {
+    bct = bct === "Baixo" ? "Moderado" : bct === "Moderado" ? "Moderado a alto" : bct;
+    ect = ect === "3 a 5 kN/m" ? "4 a 5 kN/m" : ect;
+    motivos.push("armazenagem longa exige mais reserva de empilhamento");
+  }
+
+  if (data.umidade === "umida") {
+    papel = papel === "Branco" ? "Branco com validação de umidade" : "Kraft";
+    motivos.push("umidade pede margem maior de segurança estrutural");
+    alertas.push("em ambiente úmido, a resistência real tende a cair e a recomendação deve ser confirmada comercialmente");
+  }
+
+  if (data.umidade === "severa") {
+    parede = parede === "Parede simples" ? "Parede dupla" : parede;
+    onda = parede === "Parede dupla" ? "BC" : onda;
+    ect = ect === "3 a 5 kN/m" ? "5 a 7 kN/m" : ect === "5 a 7 kN/m" ? "7 a 10 kN/m" : ect;
+    bct = bct === "Baixo" ? "Moderado" : bct === "Moderado" ? "Alto" : bct;
+    papel = "Kraft com barreira ou validação para umidade";
+    motivos.push("umidade severa ou câmara fria exigem especificação mais conservadora");
+    alertas.push("ambiente muito úmido pede teste ou histórico validado de campo");
+  }
+
+  if (data.prioridade === "custo") {
+    motivos.push("prioridade de custo reduz excesso de material quando o risco logístico permite");
+  }
+
+  if (data.prioridade === "protecao") {
+    bct = bct === "Baixo" ? "Moderado" : bct === "Moderado" ? "Alto" : "Muito alto";
+    ect = ect === "3 a 5 kN/m" ? "5 a 7 kN/m" : ect === "5 a 7 kN/m" ? "7 a 10 kN/m" : ect;
+    parede = parede === "Parede simples" && (data.peso === "alto" || data.fragilidade === "alta" || data.transporte === "exportacao")
+      ? "Parede dupla"
+      : parede;
+    motivos.push("prioridade declarada de proteção aumenta a reserva estrutural");
+  }
+
   return {
     formato,
+    parede,
     onda,
     ect,
+    bct,
     papel,
+    gramatura,
     Confiança,
-    resumo: motivos.join("; ")
+    resumo: motivos.join("; "),
+    alertas
   };
 }
 
@@ -1689,18 +1754,42 @@ function applyRecommendationToForm(recommendation) {
     const onda = card.querySelector('[data-spec="onda"]');
     const ect = card.querySelector('[data-spec="coluna_minima"]');
     const papel = card.querySelector('[data-spec="tipo_papel"]');
-    if (onda && [...onda.options].some((option) => option.value === recommendation.onda)) onda.value = recommendation.onda;
+    const gramatura = card.querySelector('[data-spec="gramatura"]');
+    const normalizedPaper = recommendation.papel.includes("Branco")
+      ? "Branco"
+      : recommendation.papel.includes("Reciclado")
+        ? "Reciclado"
+        : recommendation.papel.includes("Kraft")
+          ? "Kraft"
+          : "";
+    const normalizedWave = recommendation.onda.includes("BC")
+      ? "BC"
+      : recommendation.onda.includes("EB")
+        ? "EB"
+        : recommendation.onda.includes("E")
+          ? "E"
+          : recommendation.onda.includes("C")
+            ? "C"
+            : recommendation.onda.includes("B")
+              ? "B"
+              : "";
+    if (onda && [...onda.options].some((option) => option.value === normalizedWave)) onda.value = normalizedWave;
     if (ect) ect.value = recommendation.ect;
-    if (papel && [...papel.options].some((option) => option.value === recommendation.papel)) papel.value = recommendation.papel;
+    if (papel && [...papel.options].some((option) => option.value === normalizedPaper)) papel.value = normalizedPaper;
+    if (gramatura) gramatura.value = recommendation.gramatura;
   });
 
   serializeModelSpecs();
 }
 
 function renderRecommendation(recommendation) {
-  state.wizardRecommendation = `${recommendation.formato} | Onda ${recommendation.onda} | ECT ${recommendation.ect} | Papel ${recommendation.papel} | Confiança ${recommendation.Confiança} | ${recommendation.resumo}`;
+  state.wizardRecommendation = `${recommendation.formato} | ${recommendation.parede} | Onda ${recommendation.onda} | ECT ${recommendation.ect} | BCT ${recommendation.bct} | Papel ${recommendation.papel} | Gramatura ${recommendation.gramatura} | Confiança ${recommendation.Confiança} | ${recommendation.resumo}`;
   if (wizardRecommendationField) wizardRecommendationField.value = state.wizardRecommendation;
   if (!wizardResult) return;
+
+  const alerts = (recommendation.alertas || []).length
+    ? `<div class="recommendation-alerts">${recommendation.alertas.map((item) => `<p>${item}</p>`).join("")}</div>`
+    : "";
 
   wizardResult.innerHTML = `
     <span class="section-kicker">Resultado guiado</span>
@@ -1708,11 +1797,15 @@ function renderRecommendation(recommendation) {
     <div class="confidence-badge">Confiança ${recommendation.Confiança}</div>
     <div class="recommendation-grid">
       <div class="recommendation-item"><strong>Formato base</strong><span>${recommendation.formato}</span></div>
+      <div class="recommendation-item"><strong>Estrutura</strong><span>${recommendation.parede}</span></div>
       <div class="recommendation-item"><strong>Onda sugerida</strong><span>${recommendation.onda}</span></div>
       <div class="recommendation-item"><strong>Faixa de ECT</strong><span>${recommendation.ect}</span></div>
+      <div class="recommendation-item"><strong>BCT orientativo</strong><span>${recommendation.bct}</span></div>
       <div class="recommendation-item"><strong>Papel sugerido</strong><span>${recommendation.papel}</span></div>
+      <div class="recommendation-item"><strong>Gramatura inicial</strong><span>${recommendation.gramatura}</span></div>
     </div>
     <p>${normalizeBrokenText(recommendation.resumo || "Recomendação baseada em uso, risco logístico, empilhamento e nível de impressão.")}</p>
+    ${alerts}
     <button class="btn btn-primary" type="button" id="apply-recommendation">Aplicar no formulário de cotação</button>
   `;
 
