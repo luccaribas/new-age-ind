@@ -13,9 +13,23 @@ const LEADS_STORAGE_KEY = "newage_leads";
 function loadRuntimeConfig() {
   try {
     const stored = JSON.parse(localStorage.getItem(RUNTIME_CONFIG_KEY) || "{}");
-    return { ...SITE_CONFIG, ...stored };
+    const merged = { ...SITE_CONFIG, ...stored };
+    if (!isValidHttpUrl(merged.formEndpoint)) {
+      merged.formEndpoint = SITE_CONFIG.formEndpoint;
+    }
+    return merged;
   } catch (error) {
     return { ...SITE_CONFIG };
+  }
+}
+
+function isValidHttpUrl(value) {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch (error) {
+    return false;
   }
 }
 
