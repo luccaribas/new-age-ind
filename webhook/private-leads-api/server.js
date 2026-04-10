@@ -31,11 +31,12 @@ app.get("/health", (req, res) => {
   res.json({
     ok: true,
     service: "new-age-private-leads-api",
-    totalLeads: readLeads().length
+    totalLeads: readLeads().length,
+    sheetsForwarding: Boolean(String(process.env.PRIVATE_SHEETS_WEBHOOK || "").trim())
   });
 });
 
-app.post("/api/leads", (req, res) => {
+app.post("/api/leads", async (req, res) => {
   try {
     const origin = req.headers.origin || "";
     if (!isAllowedOrigin(origin)) {
@@ -55,10 +56,13 @@ app.post("/api/leads", (req, res) => {
     leads.push(lead);
     writeLeads(leads);
 
+    const sheetsForwarded = await forwardLeadToSheets(lead);
+
     res.status(201).json({
       ok: true,
       id: lead.submission_id,
-      message: "Lead recebido com sucesso."
+      message: "Lead recebido com sucesso.",
+      sheetsForwarded
     });
   } catch (error) {
     res.status(400).json({ ok: false, error: String(error.message || error) });
@@ -181,4 +185,25 @@ function isAllowedPageUrl(value) {
   } catch (error) {
     return false;
   }
+}
+
+async function forwardLeadToSheets(lead) {
+  const webhookUrl = String(process.env.PRIVATE_SHEETS_WEBHOOK || "").trim();
+  if (!webhookUrl) {
+    return false;
+  }
+
+  const response = await fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(lead)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao encaminhar lead para a planilha: ${response.status}`);
+  }
+
+  return true;
 }

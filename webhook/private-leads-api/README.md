@@ -29,6 +29,7 @@ Copie `.env.example` para `.env` e preencha:
 - `ALLOWED_ORIGINS`
 - `INTERNAL_API_KEY`
 - `PUBLIC_BASE_URL`
+- `PRIVATE_SHEETS_WEBHOOK` opcional, para gravar em planilha sem expor o endpoint no front
 
 ## 3. Executar
 
@@ -60,4 +61,12 @@ Por padrão, os leads são armazenados em:
 
 - `data/leads.json`
 
-Para produção, o recomendado é trocar para banco ou CRM.
+Se `PRIVATE_SHEETS_WEBHOOK` estiver preenchido, o backend também encaminha cada lead para a planilha.
+
+Isso permite:
+
+- manter o endpoint da planilha fora do front
+- continuar com backup local no backend
+- centralizar a segurança no servidor
+
+Para produção mais robusta, o próximo passo continua sendo banco ou CRM.
