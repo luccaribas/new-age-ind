@@ -70,11 +70,11 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 12px 24px rgba(15, 76, 92, 0.18);
 }
 
-.hero { padding: 44px 0 36px; }
+.hero { padding: 38px 0 34px; }
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(380px, 0.9fr);
+  gap: 32px;
   align-items: start;
 }
 .eyebrow, .section-kicker, .card-badge {
@@ -89,14 +89,17 @@ img { max-width: 100%; display: block; }
 }
 .hero h1 {
   margin: 18px 0 14px;
-  font-size: clamp(2.35rem, 4.8vw, 4.25rem);
-  line-height: 1.04;
+  font-size: clamp(2.2rem, 4.1vw, 3.85rem);
+  line-height: 1.02;
   letter-spacing: -0.03em;
-  max-width: 14ch;
+  max-width: 10.5ch;
 }
 .hero-text, .section-heading p, .solution-card p, .feature-card p, .step-card p, .testimonial-card p, .form-copy p, .highlight-box p, .final-cta-box p, .site-footer p, .wizard-result p, .selected-models-list, .model-card p {
   color: var(--muted);
   line-height: 1.65;
+}
+.hero-text {
+  max-width: 58ch;
 }
 .hero-actions, .final-cta-actions {
   display: flex;
@@ -112,8 +115,10 @@ img { max-width: 100%; display: block; }
 }
 .path-card {
   display: grid;
-  gap: 8px;
-  padding: 18px;
+  gap: 10px;
+  padding: 20px;
+  min-height: 188px;
+  align-content: start;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(15, 76, 92, 0.12);
@@ -127,10 +132,13 @@ img { max-width: 100%; display: block; }
 .path-card strong {
   font-family: "Sora", sans-serif;
   color: var(--primary);
+  font-size: 1.02rem;
+  line-height: 1.2;
 }
 .path-card span {
   color: var(--muted);
   line-height: 1.5;
+  font-size: 0.98rem;
 }
 .btn {
   display: inline-flex;
@@ -226,12 +234,14 @@ img { max-width: 100%; display: block; }
 .hero-card .steps-grid,
 .hero-card .solution-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 .hero-card .step-card,
 .hero-card .solution-card {
   min-height: 0;
   padding: 18px;
   align-content: start;
+  display: grid;
 }
 .hero-card .step-card h3,
 .hero-card .solution-card h3 {
@@ -734,12 +744,25 @@ img { max-width: 100%; display: block; }
 }
 
 .form-section {
-  grid-template-columns: 0.92fr 1.08fr;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   align-items: start;
+  gap: 32px;
 }
 .form-copy {
   position: sticky;
   top: 106px;
+  max-width: 460px;
+}
+.form-copy h2 {
+  max-width: 10.5ch;
+  font-size: clamp(2rem, 3.4vw, 3.3rem);
+}
+.form-copy p {
+  max-width: 52ch;
+}
+.form-benefits {
+  gap: 12px;
+  margin-top: 6px;
 }
 .full-span { grid-column: 1 / -1; }
 .specs-builder {
@@ -1278,6 +1301,10 @@ img { max-width: 100%; display: block; }
   }
   .hero h1,
   .hero-card h2 {
+    max-width: none;
+  }
+  .form-copy h2,
+  .form-copy p {
     max-width: none;
   }
 }
