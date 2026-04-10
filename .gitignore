@@ -1,0 +1,6 @@
+webhook/whatsapp-zapi/.env
+webhook/whatsapp-cloud-api/.env
+webhook/whatsapp-zapi/node_modules/
+webhook/whatsapp-cloud-api/node_modules/
+webhook/whatsapp-zapi/data/
+webhook/whatsapp-cloud-api/data/

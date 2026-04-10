@@ -1,6 +1,6 @@
 ﻿const SITE_CONFIG = {
   whatsappNumber: "551129378810",
-  businessEmail: "vendas@newage.ind.br",
+  businessEmail: "",
   formEndpoint: "https://script.google.com/macros/s/AKfycbwJYFnrkMk797-aYGDEbXA1qyT98ObNk0EAtIUxSO_B43mCO-5KVTnWHR4vVGTDZ2og/exec",
   gaMeasurementId: "",
   metaPixelId: ""
@@ -9,15 +9,18 @@
 const RUNTIME_CONFIG_KEY = "newage_runtime_config";
 const LEAD_EVENTS_KEY = "newage_lead_events";
 const LEADS_STORAGE_KEY = "newage_leads";
+const MIN_FORM_FILL_MS = 4000;
+const LEAD_SUBMIT_COOLDOWN_MS = 15000;
+const ALLOWED_PAGE_HOSTNAMES = new Set(["newage.ind.br", "www.newage.ind.br", "new-age-ind.vercel.app"]);
 
 function loadRuntimeConfig() {
   try {
     const stored = JSON.parse(localStorage.getItem(RUNTIME_CONFIG_KEY) || "{}");
-    const merged = { ...SITE_CONFIG, ...stored };
-    if (!isValidHttpUrl(merged.formEndpoint)) {
-      merged.formEndpoint = SITE_CONFIG.formEndpoint;
-    }
-    return merged;
+    return {
+      ...SITE_CONFIG,
+      gaMeasurementId: typeof stored.gaMeasurementId === "string" ? stored.gaMeasurementId.trim() : SITE_CONFIG.gaMeasurementId,
+      metaPixelId: typeof stored.metaPixelId === "string" ? stored.metaPixelId.trim() : SITE_CONFIG.metaPixelId
+    };
   } catch (error) {
     return { ...SITE_CONFIG };
   }
@@ -108,6 +111,7 @@ function formDataToObject(form) {
   object.modelos_padrao = object.modelos_padrao || object["modelos_padrão"] || "";
   object.wizard_recomendacao = object.wizard_recomendacao || object["wizard_recomendação"] || "";
   object.itens_personalizados = object.itens_personalizados || "";
+  object.bot_field = object["bot-field"] || object.bot_field || "";
   return object;
 }
 
@@ -132,7 +136,6 @@ function buildLeadMessage(data) {
     "Olá, quero solicitar um orçamento.",
     `${data.nome || "-"} | ${data.empresa || "-"}`,
     `Telefone: ${data.telefone || "-"}`,
-    `E-mail: ${data.email || "-"}`,
     getCompactLeadSummary(data) || "Sem resumo adicional.",
     data.modelos_especificacoes ? `Especificações: ${clipText(data.modelos_especificacoes, 320)}` : "",
     data.itens_personalizados ? `Itens personalizados: ${clipText(data.itens_personalizados, 320)}` : "",
@@ -362,8 +365,8 @@ function trackEvent(eventName, payload = {}) {
 }
 
 async function submitToEndpoint(data) {
-  if (runtimeConfig.formEndpoint) {
-    const response = await fetch(runtimeConfig.formEndpoint, {
+  if (runtimeConfig.formEndpoint && isTrustedEndpoint(runtimeConfig.formEndpoint)) {
+    await fetch(runtimeConfig.formEndpoint, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -482,7 +485,7 @@ function renderControlPanel() {
       <article class="feature-card"><h3>Webhook customizado</h3><p>${runtimeConfig.formEndpoint ? "Configurado" : "Não Configurado"}</p></article>
       <article class="feature-card"><h3>GA4</h3><p>${runtimeConfig.gaMeasurementId ? runtimeConfig.gaMeasurementId : "Não Configurado"}</p></article>
       <article class="feature-card"><h3>Meta Pixel</h3><p>${runtimeConfig.metaPixelId ? runtimeConfig.metaPixelId : "Não Configurado"}</p></article>
-      <article class="feature-card"><h3>Contato comercial</h3><p>${runtimeConfig.businessEmail || "-"} | ${runtimeConfig.whatsappNumber || "WhatsApp em implantação"}</p></article>
+      <article class="feature-card"><h3>Contato comercial</h3><p>${runtimeConfig.whatsappNumber || "WhatsApp em implantação"}</p></article>
     `;
   }
 
@@ -497,14 +500,17 @@ function renderControlPanel() {
 
   if (settingsForm) {
     settingsForm.elements.whatsappNumber.value = runtimeConfig.whatsappNumber || "";
-    settingsForm.elements.businessEmail.value = runtimeConfig.businessEmail || "";
-    settingsForm.elements.formEndpoint.value = runtimeConfig.formEndpoint || "";
+    if (settingsForm.elements.businessEmail) settingsForm.elements.businessEmail.value = runtimeConfig.businessEmail || "";
+    if (settingsForm.elements.formEndpoint) settingsForm.elements.formEndpoint.value = runtimeConfig.formEndpoint || "";
     settingsForm.elements.gaMeasurementId.value = runtimeConfig.gaMeasurementId || "";
     settingsForm.elements.metaPixelId.value = runtimeConfig.metaPixelId || "";
     settingsForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = formDataToObject(settingsForm);
-      localStorage.setItem(RUNTIME_CONFIG_KEY, JSON.stringify(data));
+      localStorage.setItem(RUNTIME_CONFIG_KEY, JSON.stringify({
+        gaMeasurementId: data.gaMeasurementId || "",
+        metaPixelId: data.metaPixelId || ""
+      }));
       window.location.reload();
     });
   }
@@ -588,16 +594,20 @@ function getDeviceType() {
 }
 
 function enrichLeadData(data) {
+  const sanitized = sanitizeLeadPayload(data);
+  const startedAtMs = Number(sanitized.lead_started_at || 0);
+  const timeToSubmitMs = startedAtMs > 0 ? Math.max(0, Date.now() - startedAtMs) : 0;
   return {
-    ...data,
+    ...sanitized,
     created_at: new Date().toISOString(),
     page_url: window.location.href,
     page_path: window.location.pathname,
     page_title: document.title,
     referrer: document.referrer || "",
-    user_agent: navigator.userAgent || "",
     device_type: getDeviceType(),
-    screen_size: `${window.screen?.width || 0}x${window.screen?.height || 0}`
+    screen_size: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+    time_to_submit_ms: timeToSubmitMs,
+    submission_id: crypto?.randomUUID ? crypto.randomUUID() : `lead_${Date.now()}_${Math.random().toString(16).slice(2, 10)}`
   };
 }
 
@@ -619,7 +629,6 @@ function persistLead(data) {
       empresa: data.empresa || "",
       cnpj: data.cnpj || "",
       telefone: data.telefone || "",
-      email: data.email || "",
       tipo_embalagem: data.tipo_embalagem || "",
       modelos_padrao: data.modelos_padrao || "",
       modelos_especificacoes: data.modelos_especificacoes || "",
@@ -652,7 +661,69 @@ function applyUtmToForms() {
       const input = form.querySelector(`input[name="${key}"]`);
       if (input) input.value = value;
     });
+    const startedAt = form.querySelector('input[name="lead_started_at"]');
+    if (startedAt && !startedAt.value) {
+      startedAt.value = String(Date.now());
+    }
   });
+}
+
+function isTrustedEndpoint(value) {
+  if (!isValidHttpUrl(value)) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" && (parsed.hostname === "script.google.com" || parsed.hostname.endsWith(".newage.ind.br"));
+  } catch (error) {
+    return false;
+  }
+}
+
+function truncateField(value, max = 500) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function sanitizeLeadPayload(data) {
+  return {
+    ...data,
+    nome: truncateField(data.nome, 120),
+    empresa: truncateField(data.empresa, 140),
+    cnpj: cnpjDigits(data.cnpj || "").slice(0, 14),
+    telefone: formatPhone(data.telefone || "").slice(0, 15),
+    email: truncateField(data.email, 140),
+    tipo_embalagem: truncateField(data.tipo_embalagem, 80),
+    modelos_padrao: truncateField(data.modelos_padrao, 600),
+    modelos_especificacoes: truncateField(data.modelos_especificacoes, 4000),
+    itens_personalizados: truncateField(data.itens_personalizados, 4000),
+    wizard_recomendacao: truncateField(data.wizard_recomendacao, 1200),
+    observacoes: truncateField(data.observacoes, 1200),
+    precisa_ajuda: truncateField(data.precisa_ajuda, 20),
+    bot_field: truncateField(data.bot_field, 120),
+    lead_started_at: String(data.lead_started_at || "").replace(/\D/g, "").slice(0, 13)
+  };
+}
+
+function setFormFeedback(feedback, message, isError = false) {
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.classList.toggle("is-error", Boolean(isError));
+}
+
+function isLikelySpamLead(data) {
+  if (String(data.bot_field || "").trim()) {
+    return "Envio bloqueado por validação anti-spam.";
+  }
+
+  const startedAt = Number(data.lead_started_at || 0);
+  if (!startedAt || Date.now() - startedAt < MIN_FORM_FILL_MS) {
+    return "Aguarde alguns segundos e tente novamente.";
+  }
+
+  const recentSubmit = Number(localStorage.getItem("newage_last_submit_at") || 0);
+  if (recentSubmit && Date.now() - recentSubmit < LEAD_SUBMIT_COOLDOWN_MS) {
+    return "Aguarde alguns segundos antes de enviar outro pedido.";
+  }
+
+  return "";
 }
 
 function attachClickTracking() {
@@ -1970,26 +2041,37 @@ function attachFormHandlers() {
       serializeModelSpecs();
       serializeDirectSpecs();
       const data = formDataToObject(form);
+      const spamReason = isLikelySpamLead(data);
 
       if (!data.nome || !data.empresa || !data.telefone) {
-      if (feedback) feedback.textContent = "Preencha nome, empresa e telefone para continuar.";
+        setFormFeedback(feedback, "Preencha nome, empresa e telefone para continuar.", true);
         return;
       }
 
       const cnpj = cnpjDigits(data.cnpj || "");
       if (cnpj.length !== 14) {
-        if (feedback) feedback.textContent = "Informe o CNPJ da empresa para prosseguir com o orçamento.";
+        setFormFeedback(feedback, "Informe o CNPJ da empresa para prosseguir com o orçamento.", true);
         return;
       }
 
       const phoneDigits = formatPhone(data.telefone);
       if (phoneDigits.length < 10) {
-        if (feedback) feedback.textContent = "Informe um telefone válido.";
+        setFormFeedback(feedback, "Informe um telefone válido.", true);
+        return;
+      }
+
+      if (!ALLOWED_PAGE_HOSTNAMES.has(window.location.hostname)) {
+        setFormFeedback(feedback, "Origem da página inválida para envio do formulário.", true);
+        return;
+      }
+
+      if (spamReason) {
+        setFormFeedback(feedback, spamReason, true);
         return;
       }
 
       if (submitButton) submitButton.disabled = true;
-      if (feedback) feedback.textContent = "Preparando seu pedido de orçamento...";
+      setFormFeedback(feedback, "Preparando seu pedido de orçamento...");
 
       const enrichedData = enrichLeadData(data);
       const message = buildLeadMessage(enrichedData);
@@ -2018,11 +2100,13 @@ function attachFormHandlers() {
             status: "submitted"
           });
         }
-        if (feedback) {
-          feedback.textContent = endpointSubmitted
-            ? "Pedido enviado com sucesso. Nossa equipe fará o retorno com base nos dados recebidos."
-            : "Pedido preparado com sucesso. Seus dados ficaram registrados com segurança nesta sessão e o próximo passo pode ser feito pelo WhatsApp.";
-        }
+        localStorage.setItem("newage_last_submit_at", String(Date.now()));
+        setFormFeedback(
+          feedback,
+          endpointSubmitted
+            ? "Pedido enviado com sucesso. Nossa equipe fará o retorno pelo WhatsApp ou telefone informado."
+            : "Pedido preparado com sucesso. Seus dados ficaram registrados com segurança nesta sessão e o próximo passo pode ser feito pelo WhatsApp."
+        );
         form.reset();
         updateSelectedModelsUi();
         renderModelSpecs();
@@ -2032,7 +2116,7 @@ function attachFormHandlers() {
       } catch (error) {
         console.error(error);
         trackEvent("lead_submit_fallback", { form_type: formType });
-        if (feedback) feedback.textContent = "Seu pedido foi registrado. Como o WhatsApp ainda está em implantação, o retorno acontecerá pelos dados informados.";
+        setFormFeedback(feedback, "Seu pedido foi registrado. Continue pelo WhatsApp para garantir o atendimento mais rápido.", true);
         if (whatsAppLink) { openSuccessModal(whatsAppLink); }
       } finally {
         if (submitButton) submitButton.disabled = false;

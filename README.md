@@ -60,7 +60,7 @@ Edite [script.js](C:\Users\lucca\new-age-embalagens-site\script.js):
 ```js
 const SITE_CONFIG = {
   whatsappNumber: "551129378810",
-  businessEmail: "vendas@newage.ind.br",
+  businessEmail: "",
   formEndpoint: "",
   gaMeasurementId: "",
   metaPixelId: ""

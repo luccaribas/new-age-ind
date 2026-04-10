@@ -362,6 +362,7 @@
           <input type="hidden" name="form-name" value="lead-completo-orcamento-rapido">
           <input type="hidden" name="form_name" value="Formulário completo orçamento rápido">
           <input type="text" name="bot-field" hidden tabindex="-1" autocomplete="off">
+          <input type="hidden" name="lead_started_at">
           <input type="hidden" name="utm_source">
           <input type="hidden" name="utm_medium">
           <input type="hidden" name="utm_campaign">
@@ -375,7 +376,6 @@
             <label>Empresa<input type="text" name="empresa" required></label>
             <label>CNPJ<input type="text" name="cnpj" placeholder="00.000.000/0000-00" required></label>
             <label>Telefone<input type="tel" name="telefone" required></label>
-            <label>E-mail<input type="email" name="email" required></label>
             <label>
               Tipo de embalagem
               <select name="tipo_embalagem" required>
@@ -410,7 +410,7 @@
           </div>
 
           <button class="btn btn-primary btn-block" type="submit">Enviar pedido de cotação</button>
-          <p class="microcopy">As solicitações podem seguir para webhook ou CRM. Sem integração ativa, os dados continuam registrados localmente e o atendimento segue pelo WhatsApp.</p>
+          <p class="microcopy">Depois do envio, você pode continuar a conversa pelo WhatsApp comercial com um resumo do pedido.</p>
           <p class="form-feedback" aria-live="polite"></p>
         </form>
       </div>
@@ -419,7 +419,7 @@
 
   <footer class="site-footer">
     <div class="container site-footer-inner">
-      <p>New Age Embalagens • atendimento comercial para empresas • vendas@newage.ind.br • 011 2937 8810</p>
+      <p>New Age Embalagens • atendimento comercial para empresas • 011 2937 8810</p>
     </div>
   </footer>
 
