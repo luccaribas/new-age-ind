@@ -625,15 +625,10 @@ function persistLead(data) {
   try {
     const stored = JSON.parse(localStorage.getItem(LEADS_STORAGE_KEY) || "[]");
     stored.push({
-      nome: data.nome || "",
-      empresa: data.empresa || "",
-      cnpj: data.cnpj || "",
-      telefone: data.telefone || "",
-      tipo_embalagem: data.tipo_embalagem || "",
-      modelos_padrao: data.modelos_padrao || "",
-      modelos_especificacoes: data.modelos_especificacoes || "",
-      itens_personalizados: data.itens_personalizados || "",
-      wizard_recomendacao: data.wizard_recomendacao || "",
+      lead_type: data.tipo_embalagem || "",
+      selected_models_count: String(data.modelos_padrao || "").split(",").filter(Boolean).length,
+      used_guided_recommendation: Boolean(data.wizard_recomendacao),
+      has_custom_items: Boolean(data.itens_personalizados),
       device_type: data.device_type || "",
       page_path: data.page_path || "",
       utm_source: data.utm_source || "",
@@ -1295,6 +1290,8 @@ function normalizePageContent() {
 }
 
 function publishDiagnostics() {
+  const isLocalDebug = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  if (!isLocalDebug) return;
   window.NEWAGE_DIAGNOSTICS = {
     models: Array.isArray(window.FEFCO_MODELS) ? window.FEFCO_MODELS.length : 0,
     guides: Object.keys(window.FEFCO_GUIDES || {}).length,

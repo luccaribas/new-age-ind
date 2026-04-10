@@ -4,3 +4,6 @@ webhook/whatsapp-zapi/node_modules/
 webhook/whatsapp-cloud-api/node_modules/
 webhook/whatsapp-zapi/data/
 webhook/whatsapp-cloud-api/data/
+webhook/private-leads-api/.env
+webhook/private-leads-api/node_modules/
+webhook/private-leads-api/data/
