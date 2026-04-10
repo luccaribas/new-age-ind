@@ -44,9 +44,9 @@ npm run dev
 
 Na area de webhooks da instancia:
 
-- `Ao receber`: `https://SEU_BACKEND/webhooks/zapi`
-- `Ao conectar`: `https://SEU_BACKEND/webhooks/zapi`
-- `Ao desconectar`: `https://SEU_BACKEND/webhooks/zapi`
+- `Ao receber`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
+- `Ao conectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
+- `Ao desconectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
 
 Toggles recomendados:
 
@@ -69,7 +69,24 @@ X-API-Key: SUA_CHAVE_INTERNA
 }
 ```
 
-## 6. Persistencia
+Exemplo em PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri https://new-age-whatsapp-zapi.onrender.com/api/whatsapp/start-triage -Method Post -ContentType "application/json" -Headers @{"X-API-Key"="SUA_CHAVE_INTERNA"} -Body '{"phone":"551129378810","origin":"site","pageOrigin":"/orcamento-rapido/"}'
+```
+
+## 6. Variaveis no Render
+
+Configure no servico `new-age-whatsapp-zapi`:
+
+- `ZAPI_INSTANCE_ID`
+- `ZAPI_INSTANCE_TOKEN`
+- `ZAPI_CLIENT_TOKEN`
+- `INTERNAL_API_KEY`
+- `PUBLIC_BASE_URL=https://new-age-whatsapp-zapi.onrender.com`
+- `ALLOWED_ORIGIN=https://www.newage.ind.br`
+
+## 7. Persistencia
 
 Os leads ficam em:
 
