@@ -230,23 +230,60 @@ function ensureWhatsAppFloat() {
   wrapper.className = "whatsapp-launcher";
   wrapper.innerHTML = `
     <div class="whatsapp-quick-actions" aria-label="Perguntas rápidas no WhatsApp">
-      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="help_choose">Preciso de ajuda para escolher</button>
+      <div class="whatsapp-quick-header">
+        <div>
+          <strong>Atendimento comercial</strong>
+          <p>Escolha o assunto para abrir a conversa no WhatsApp.</p>
+        </div>
+        <button type="button" class="whatsapp-quick-close" aria-label="Fechar atalhos do WhatsApp" data-whatsapp-close>&times;</button>
+      </div>
+      <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="help_choose">Quero ajuda para escolher</button>
       <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="delivery_time">Quero consultar prazo</button>
       <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="minimum_order">Quero entender quantidade mínima</button>
       <button type="button" class="whatsapp-quick-action" data-whatsapp-intent="send_reference">Quero enviar uma referência</button>
     </div>
-    <button type="button" class="whatsapp-float" data-whatsapp-toggle aria-expanded="false">WhatsApp comercial</button>
+    <button type="button" class="whatsapp-float" data-whatsapp-toggle aria-expanded="false">
+      <span class="whatsapp-float-badge" aria-hidden="true">WhatsApp</span>
+      <span class="whatsapp-float-copy">
+        <strong>Falar com comercial</strong>
+        <small>Atendimento rápido para empresas</small>
+      </span>
+    </button>
   `;
   document.body.appendChild(wrapper);
 
   const toggle = wrapper.querySelector("[data-whatsapp-toggle]");
+  const closeButton = wrapper.querySelector("[data-whatsapp-close]");
+  const setOpenState = (isOpen) => {
+    wrapper.classList.toggle("is-open", isOpen);
+    if (toggle) toggle.setAttribute("aria-expanded", String(isOpen));
+  };
+
   if (toggle) {
     toggle.addEventListener("click", () => {
-      const isOpen = wrapper.classList.toggle("is-open");
-      toggle.setAttribute("aria-expanded", String(isOpen));
+      const isOpen = !wrapper.classList.contains("is-open");
+      setOpenState(isOpen);
       trackEvent("whatsapp_handoff", { destination: isOpen ? "launcher_open" : "launcher_close" });
     });
   }
+
+  if (closeButton) {
+    closeButton.addEventListener("click", () => {
+      setOpenState(false);
+      trackEvent("whatsapp_handoff", { destination: "launcher_close_button" });
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!wrapper.classList.contains("is-open")) return;
+    if (wrapper.contains(event.target)) return;
+    setOpenState(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !wrapper.classList.contains("is-open")) return;
+    setOpenState(false);
+  });
 }
 
 function attachWhatsAppIntents() {
@@ -260,7 +297,11 @@ function attachWhatsAppIntents() {
       window.open(link, "_blank", "noopener");
       trackEvent("whatsapp_handoff", { destination: intent });
       const launcher = document.querySelector(".whatsapp-launcher");
-      if (launcher) launcher.classList.remove("is-open");
+      if (launcher) {
+        launcher.classList.remove("is-open");
+        const toggle = launcher.querySelector("[data-whatsapp-toggle]");
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
+      }
     });
   });
 }
