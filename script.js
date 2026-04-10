@@ -1,7 +1,7 @@
 ﻿const SITE_CONFIG = {
   whatsappNumber: "551129378810",
   businessEmail: "",
-  formEndpoint: "https://script.google.com/macros/s/AKfycbwJYFnrkMk797-aYGDEbXA1qyT98ObNk0EAtIUxSO_B43mCO-5KVTnWHR4vVGTDZ2og/exec",
+  formEndpoint: "https://new-age-private-leads-api.onrender.com/api/leads",
   gaMeasurementId: "",
   metaPixelId: ""
 };
