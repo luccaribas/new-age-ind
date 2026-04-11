@@ -9,12 +9,26 @@ const LEADS_FILE = path.join(__dirname, "data", "whatsapp-leads.json");
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
 
 const SUBJECT_OPTIONS = [
-  "Cotacao de caixa padrao",
-  "Caixa sob medida",
-  "Ajuda para escolher modelo",
-  "Prazo / entrega",
-  "Pedido recorrente",
-  "Outro"
+  {
+    key: "exact_specs",
+    label: "Sei exatamente o que preciso"
+  },
+  {
+    key: "known_model_needs_specs",
+    label: "Sei o modelo, mas nao sei as especificacoes tecnicas"
+  },
+  {
+    key: "new_development",
+    label: "Preciso desenvolver do zero"
+  },
+  {
+    key: "order_info",
+    label: "Quero informacoes do meu pedido"
+  },
+  {
+    key: "reorder",
+    label: "Quero recomprar modelos"
+  }
 ];
 
 app.use(express.json({ limit: "1mb" }));
@@ -89,10 +103,7 @@ app.post("/api/whatsapp/start-triage", async (req, res) => {
     });
     writeLeads(leads);
 
-    await sendTextMessage(
-      phone,
-      "Ola, aqui e da New Age Embalagens.\n\nPara direcionar seu atendimento comercial, qual e o seu nome?"
-    );
+    await sendTextMessage(phone, getGreetingMessage());
 
     res.json({ ok: true, lead: leads[phone] });
   } catch (error) {
@@ -158,8 +169,13 @@ function buildFreshLead({ phone, origin, pageOrigin }) {
     status: "em_triagem",
     step: "name",
     name: "",
+    company: "",
     cnpj: "",
+    email: "",
+    contactPhone: phone || "",
+    subjectKey: "",
     subject: "",
+    details: {},
     origin,
     pageOrigin,
     createdAt: new Date().toISOString(),
@@ -178,6 +194,14 @@ function sanitizeCnpj(value) {
 
 function isValidCnpj(cnpj) {
   return sanitizeCnpj(cnpj).length === 14;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+function hasKnownContactPhone(lead) {
+  return normalizePhone(lead.contactPhone || lead.phone);
 }
 
 function isAuthorizedWebhook(req) {
@@ -274,14 +298,19 @@ async function handleIncomingMessage(event) {
   let lead = leads[phone];
   const incomingText = event.text;
 
+  if (isRestartCommand(incomingText)) {
+    lead = buildFreshLead({ phone, origin: "whatsapp_direto", pageOrigin: "" });
+    leads[phone] = lead;
+    writeLeads(leads);
+    await sendTextMessage(phone, getGreetingMessage());
+    return;
+  }
+
   if (!lead) {
     lead = buildFreshLead({ phone, origin: "whatsapp_direto", pageOrigin: "" });
     leads[phone] = lead;
     writeLeads(leads);
-    await sendTextMessage(
-      phone,
-      "Ola, aqui e da New Age Embalagens.\n\nPara direcionar seu atendimento comercial, qual e o seu nome?"
-    );
+    await sendTextMessage(phone, getGreetingMessage());
     return;
   }
 
@@ -289,69 +318,275 @@ async function handleIncomingMessage(event) {
     return;
   }
 
-  if (!lead.name) {
-    lead.name = incomingText;
-    lead.step = "cnpj";
-    lead.updatedAt = new Date().toISOString();
-    leads[phone] = lead;
-    writeLeads(leads);
-    await sendTextMessage(phone, `Perfeito, ${lead.name}. Agora me informe o CNPJ da empresa.`);
-    return;
-  }
+  const nextMessage = advanceLead(lead, incomingText);
+  lead.updatedAt = new Date().toISOString();
+  leads[phone] = lead;
+  writeLeads(leads);
 
-  if (!lead.cnpj) {
-    const cnpj = sanitizeCnpj(incomingText);
-    if (!isValidCnpj(cnpj)) {
-      await sendTextMessage(phone, "Nao consegui validar esse CNPJ. Pode enviar novamente com 14 digitos?");
-      return;
+  if (nextMessage) {
+    await sendTextMessage(phone, nextMessage);
+  }
+}
+
+function advanceLead(lead, incomingText) {
+  const text = String(incomingText || "").trim();
+
+  switch (lead.step) {
+    case "name":
+      lead.name = text;
+      lead.step = "company";
+      return `Perfeito, ${lead.name}. Qual e o nome da empresa que voce representa?`;
+
+    case "company":
+      lead.company = text;
+      lead.step = "cnpj";
+      return "Agora me informe o CNPJ da empresa.";
+
+    case "cnpj": {
+      const cnpj = sanitizeCnpj(text);
+      if (!isValidCnpj(cnpj)) {
+        return "Nao consegui validar esse CNPJ. Pode enviar novamente com 14 digitos?";
+      }
+      lead.cnpj = cnpj;
+      lead.step = "email";
+      return "Qual e o seu e-mail corporativo?";
     }
 
-    lead.cnpj = cnpj;
-    lead.step = "subject";
-    lead.updatedAt = new Date().toISOString();
-    leads[phone] = lead;
-    writeLeads(leads);
-    await sendTextMessage(
-      phone,
-      "Qual assunto deseja tratar?\n\n1. Cotacao de caixa padrao\n2. Caixa sob medida\n3. Ajuda para escolher modelo\n4. Prazo / entrega\n5. Pedido recorrente\n6. Outro"
-    );
-    return;
-  }
+    case "email":
+      if (!isValidEmail(text)) {
+        return "Pode enviar um e-mail corporativo valido? Exemplo: compras@empresa.com.br";
+      }
+      lead.email = text;
+      if (!hasKnownContactPhone(lead)) {
+        lead.step = "contact_phone";
+        return "Qual telefone de contato com DDD?";
+      }
+      lead.step = "subject";
+      return getSubjectQuestion();
 
-  if (!lead.subject) {
-    lead.subject = parseSubject(incomingText);
+    case "contact_phone": {
+      const contactPhone = normalizePhone(text);
+      if (!contactPhone) {
+        return "Pode enviar o telefone com DDD? Exemplo: 11999999999";
+      }
+      lead.contactPhone = contactPhone;
+      lead.step = "subject";
+      return getSubjectQuestion();
+    }
+
+    case "subject": {
+      const option = parseSubject(text);
+      if (!option) {
+        return getSubjectQuestion();
+      }
+      lead.subjectKey = option.key;
+      lead.subject = option.label;
+      lead.step = getFirstDetailStep(option.key);
+      return getQuestionForStep(lead.step, lead);
+    }
+
+    default:
+      return handleDetailStep(lead, text);
+  }
+}
+
+function handleDetailStep(lead, text) {
+  if (!lead.details) lead.details = {};
+
+  const step = lead.step;
+  const nextStep = getNextDetailStep(lead.subjectKey, step);
+  saveDetailAnswer(lead, step, text);
+
+  if (!nextStep) {
     lead.step = "handoff";
     lead.status = "triado";
-    lead.updatedAt = new Date().toISOString();
-    leads[phone] = lead;
-    writeLeads(leads);
-
-    await sendTextMessage(
-      phone,
-      `Perfeito. Recebemos seus dados.\n\nNome: ${lead.name}\nCNPJ: ${formatCnpj(lead.cnpj)}\nAssunto: ${lead.subject}\n\nNosso comercial vai continuar o atendimento por aqui.`
-    );
+    return buildFinalSummary(lead);
   }
+
+  lead.step = nextStep;
+  return getQuestionForStep(nextStep, lead);
+}
+
+function isRestartCommand(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return ["reiniciar", "recomecar", "recomeçar", "novo atendimento", "menu"].includes(normalized);
+}
+
+function getGreetingMessage() {
+  return "Ola, aqui e da New Age Embalagens.\n\nPara direcionar seu atendimento comercial, qual e o seu nome?\n\nSe quiser recomecar a qualquer momento, envie: menu";
+}
+
+function getSubjectQuestion() {
+  return [
+    "Como podemos te ajudar?",
+    "",
+    "1. Sei exatamente o que preciso",
+    "2. Sei o modelo que preciso, mas nao sei as especificacoes tecnicas",
+    "3. Preciso desenvolver do zero",
+    "4. Quero informacoes do meu pedido",
+    "5. Quero recomprar modelos",
+    "",
+    "Responda apenas com o numero da opcao."
+  ].join("\n");
 }
 
 function parseSubject(value) {
   const normalized = String(value || "").trim().toLowerCase();
 
-  if (normalized === "1" || normalized.includes("cotacao")) {
-    return SUBJECT_OPTIONS[0];
+  if (normalized === "1" || normalized.includes("exatamente")) return SUBJECT_OPTIONS[0];
+  if (normalized === "2" || normalized.includes("modelo") || normalized.includes("especific")) return SUBJECT_OPTIONS[1];
+  if (normalized === "3" || normalized.includes("zero") || normalized.includes("desenvolver")) return SUBJECT_OPTIONS[2];
+  if (normalized === "4" || normalized.includes("pedido") || normalized.includes("informacao") || normalized.includes("informações")) return SUBJECT_OPTIONS[3];
+  if (normalized === "5" || normalized.includes("recomprar") || normalized.includes("recompra")) return SUBJECT_OPTIONS[4];
+
+  return null;
+}
+
+function getFirstDetailStep(subjectKey) {
+  const flows = getDetailFlows();
+  return flows[subjectKey]?.[0] || "";
+}
+
+function getNextDetailStep(subjectKey, currentStep) {
+  const flow = getDetailFlows()[subjectKey] || [];
+  const index = flow.indexOf(currentStep);
+  return index >= 0 ? flow[index + 1] || "" : "";
+}
+
+function getDetailFlows() {
+  return {
+    exact_specs: [
+      "model_fefco",
+      "accessory_fefco",
+      "internal_dimensions",
+      "minimum_ect",
+      "paper_type",
+      "grammage",
+      "quantity",
+      "printing",
+      "deadline"
+    ],
+    known_model_needs_specs: [
+      "model_fefco",
+      "product",
+      "internal_dimensions",
+      "product_weight",
+      "stacking",
+      "transport",
+      "humidity",
+      "printing",
+      "quantity"
+    ],
+    new_development: [
+      "product",
+      "product_dimensions",
+      "product_weight",
+      "fragility",
+      "use_case",
+      "transport",
+      "stacking",
+      "humidity",
+      "printing",
+      "quantity"
+    ],
+    order_info: [
+      "order_reference",
+      "order_question"
+    ],
+    reorder: [
+      "previous_model",
+      "quantity",
+      "changes"
+    ]
+  };
+}
+
+function getQuestionForStep(step, lead) {
+  const questions = {
+    model_fefco: "Qual modelo FEFCO voce quer cotar? Exemplo: 0201, 0427, 0713. Se tiver variacao, descreva junto.",
+    accessory_fefco: "Vai ter acessorio FEFCO ou divisoria interna? Se sim, informe o codigo ou descreva. Se nao tiver, responda: nao.",
+    internal_dimensions: "Quais medidas internas deseja? Envie em C x L x A, em mm. Exemplo: 300 x 200 x 150 mm.",
+    minimum_ect: "Qual coluna minima / ECT desejada? Exemplo: 5 kN/m, 7 kN/m. Se nao souber, responda: nao sei.",
+    paper_type: "Tipo de papel preferido: Kraft, Branco ou Reciclado?",
+    grammage: "Gramatura desejada, se ja souber. Exemplo: liner 175 / miolo 120. Se nao souber, responda: nao sei.",
+    quantity: "Qual quantidade aproximada para cotacao?",
+    printing: "Vai ter impressao? Responda: sem impressao, 1 cor, 2 cores ou arte premium.",
+    deadline: "Tem prazo desejado para receber ou aprovar a cotacao?",
+    product: "Qual produto sera embalado?",
+    product_dimensions: "Quais sao as medidas aproximadas do produto? Envie C x L x A em mm.",
+    product_weight: "Qual o peso aproximado por caixa ou por unidade?",
+    stacking: "Vai ter empilhamento? Exemplo: sem empilhar, 3 a 5 caixas, 6 ou mais, paletizado.",
+    transport: "Como sera o transporte? Exemplo: retirada, entrega local, carga fracionada, transportadora, Correios ou exportacao.",
+    humidity: "O ambiente e seco, umido ou camara fria?",
+    fragility: "O produto e fragil? Responda: baixa, media ou alta fragilidade.",
+    use_case: "A caixa sera usada para envio, armazenagem, exposicao, industria ou e-commerce?",
+    order_reference: "Voce tem numero do pedido, nota, nome do produto ou referencia interna?",
+    order_question: "Qual informacao voce quer sobre o pedido? Exemplo: prazo, status, recompra, alteracao ou segunda via.",
+    previous_model: "Qual modelo ou referencia voce quer recomprar? Pode enviar codigo, foto, pedido anterior ou descricao.",
+    changes: "Vai repetir igual ao pedido anterior ou precisa mudar medidas, papel, impressao ou quantidade?"
+  };
+
+  if (step === "model_fefco" && lead.subjectKey === "known_model_needs_specs") {
+    return "Qual modelo FEFCO voce ja sabe que precisa? Exemplo: 0201, 0427, 0713.";
   }
-  if (normalized === "2" || normalized.includes("sob medida")) {
-    return SUBJECT_OPTIONS[1];
-  }
-  if (normalized === "3" || normalized.includes("escolher")) {
-    return SUBJECT_OPTIONS[2];
-  }
-  if (normalized === "4" || normalized.includes("prazo") || normalized.includes("entrega")) {
-    return SUBJECT_OPTIONS[3];
-  }
-  if (normalized === "5" || normalized.includes("recorrente")) {
-    return SUBJECT_OPTIONS[4];
-  }
-  return SUBJECT_OPTIONS[5];
+
+  return questions[step] || "Pode detalhar melhor sua necessidade?";
+}
+
+function saveDetailAnswer(lead, step, text) {
+  const map = {
+    model_fefco: "modelo_fefco",
+    accessory_fefco: "acessorio_fefco",
+    internal_dimensions: "medidas_internas",
+    minimum_ect: "coluna_minima_ect",
+    paper_type: "tipo_papel",
+    grammage: "gramatura",
+    quantity: "quantidade",
+    printing: "impressao",
+    deadline: "prazo",
+    product: "produto",
+    product_dimensions: "medidas_produto",
+    product_weight: "peso_produto",
+    stacking: "empilhamento",
+    transport: "transporte",
+    humidity: "umidade",
+    fragility: "fragilidade",
+    use_case: "uso",
+    order_reference: "referencia_pedido",
+    order_question: "duvida_pedido",
+    previous_model: "modelo_anterior",
+    changes: "alteracoes"
+  };
+
+  lead.details[map[step] || step] = text;
+}
+
+function buildFinalSummary(lead) {
+  const detailLines = Object.entries(lead.details || {})
+    .filter(([, value]) => String(value || "").trim())
+    .map(([key, value]) => `- ${formatLabel(key)}: ${value}`);
+
+  return [
+    "Perfeito. Recebemos suas informacoes.",
+    "",
+    `Nome: ${lead.name}`,
+    `Empresa: ${lead.company}`,
+    `CNPJ: ${formatCnpj(lead.cnpj)}`,
+    `E-mail: ${lead.email}`,
+    `Telefone: ${lead.contactPhone || lead.phone}`,
+    `Assunto: ${lead.subject}`,
+    "",
+    "Resumo para o comercial:",
+    ...detailLines,
+    "",
+    "Nosso comercial vai continuar o atendimento por aqui."
+  ].join("\n");
+}
+
+function formatLabel(value) {
+  return String(value || "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function formatCnpj(cnpj) {
