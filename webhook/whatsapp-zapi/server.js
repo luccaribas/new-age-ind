@@ -181,15 +181,18 @@ function isValidCnpj(cnpj) {
 }
 
 function isAuthorizedWebhook(req) {
-  const expected = String(process.env.ZAPI_CLIENT_TOKEN || "").trim();
+  const expected = String(process.env.ZAPI_WEBHOOK_TOKEN || "").trim();
   if (!expected) {
     return true;
   }
 
   const received = String(
+    req.query?.token ||
+    req.query?.webhook_token ||
+    req.headers["x-webhook-token"] ||
     req.headers["client-token"] ||
-    req.headers["Client-Token"] ||
     req.body?.clientToken ||
+    req.body?.webhookToken ||
     ""
   ).trim();
 

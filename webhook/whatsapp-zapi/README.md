@@ -44,9 +44,9 @@ npm run dev
 
 Na area de webhooks da instancia:
 
-- `Ao receber`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
-- `Ao conectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
-- `Ao desconectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi`
+- `Ao receber`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi?token=SUA_CHAVE_DE_WEBHOOK`
+- `Ao conectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi?token=SUA_CHAVE_DE_WEBHOOK`
+- `Ao desconectar`: `https://new-age-whatsapp-zapi.onrender.com/webhooks/zapi?token=SUA_CHAVE_DE_WEBHOOK`
 
 Toggles recomendados:
 
@@ -82,6 +82,7 @@ Configure no servico `new-age-whatsapp-zapi`:
 - `ZAPI_INSTANCE_ID`
 - `ZAPI_INSTANCE_TOKEN`
 - `ZAPI_CLIENT_TOKEN`
+- `ZAPI_WEBHOOK_TOKEN`
 - `INTERNAL_API_KEY`
 - `PUBLIC_BASE_URL=https://new-age-whatsapp-zapi.onrender.com`
 - `ALLOWED_ORIGIN=https://www.newage.ind.br`
