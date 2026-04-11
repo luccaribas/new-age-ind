@@ -38,12 +38,16 @@ app.get("/health", (req, res) => {
 
 app.post("/webhooks/zapi", async (req, res) => {
   try {
+    console.log("Webhook Z-API recebido:", JSON.stringify(req.body).slice(0, 2000));
+
     if (!isAuthorizedWebhook(req)) {
+      console.warn("Webhook Z-API recusado por Client-Token invalido.");
       return res.status(401).json({ ok: false, error: "Webhook nao autorizado." });
     }
 
     const event = parseZapiEvent(req.body);
     if (!event) {
+      console.log("Webhook Z-API ignorado: formato nao reconhecido.");
       return res.status(200).json({ ok: true, ignored: true });
     }
 
@@ -209,7 +213,15 @@ function parseZapiEvent(body) {
     body?.from ||
     body?.chatId ||
     body?.sender ||
-    body?.message?.from
+    body?.participantPhone ||
+    body?.senderPhone ||
+    body?.connectedPhone ||
+    body?.message?.from ||
+    body?.message?.phone ||
+    body?.data?.phone ||
+    body?.data?.from ||
+    body?.data?.sender ||
+    body?.data?.chatId
   );
 
   if (text && phone) {
@@ -235,11 +247,18 @@ function getBodyText(body) {
   const candidates = [
     body?.text?.message,
     body?.text?.body,
+    body?.text,
     body?.message,
+    body?.message?.text,
+    body?.message?.body,
+    body?.message?.message,
     body?.body,
     body?.conversation,
     body?.data?.body,
-    body?.data?.text
+    body?.data?.text,
+    body?.data?.message,
+    body?.data?.text?.message,
+    body?.data?.text?.body
   ];
 
   const match = candidates.find(Boolean);
@@ -249,8 +268,23 @@ function getBodyText(body) {
 async function handleIncomingMessage(event) {
   const leads = readLeads();
   const phone = event.from;
-  const lead = leads[phone] || buildFreshLead({ phone, origin: "whatsapp_direto", pageOrigin: "" });
+  let lead = leads[phone];
   const incomingText = event.text;
+
+  if (!lead) {
+    lead = buildFreshLead({ phone, origin: "whatsapp_direto", pageOrigin: "" });
+    leads[phone] = lead;
+    writeLeads(leads);
+    await sendTextMessage(
+      phone,
+      "Ola, aqui e da New Age Embalagens.\n\nPara direcionar seu atendimento comercial, qual e o seu nome?"
+    );
+    return;
+  }
+
+  if (lead.status === "triado" || lead.step === "handoff") {
+    return;
+  }
 
   if (!lead.name) {
     lead.name = incomingText;
