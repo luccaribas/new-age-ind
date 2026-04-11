@@ -510,7 +510,18 @@ function getQuestionForStep(step, lead) {
     paper_type: "Tipo de papel preferido: Kraft, Branco ou Reciclado?",
     grammage: "Gramatura desejada, se ja souber. Exemplo: liner 175 / miolo 120. Se nao souber, responda: nao sei.",
     quantity: "Qual quantidade aproximada para cotacao?",
-    printing: "Vai ter impressao? Responda: sem impressao, 1 cor, 2 cores ou arte premium.",
+    printing: [
+      "Como sera a impressao?",
+      "",
+      "1. Sem impressao",
+      "2. 1 cor",
+      "3. 2 cores",
+      "4. 3 cores",
+      "5. 4 cores",
+      "6. Impressao premium em papelao branco para destacar a marca",
+      "",
+      "Responda com o numero da opcao ou descreva se ja tiver arte."
+    ].join("\n"),
     deadline: "Tem prazo desejado para receber ou aprovar a cotacao?",
     product: "Qual produto sera embalado?",
     product_dimensions: "Quais sao as medidas aproximadas do produto? Envie C x L x A em mm.",
@@ -558,13 +569,29 @@ function saveDetailAnswer(lead, step, text) {
     changes: "alteracoes"
   };
 
-  lead.details[map[step] || step] = text;
+  const field = map[step] || step;
+  lead.details[field] = field === "impressao" ? normalizePrintingOption(text) : text;
 }
 
 function buildFinalSummary(lead) {
   const detailLines = Object.entries(lead.details || {})
     .filter(([, value]) => String(value || "").trim())
     .map(([key, value]) => `- ${formatLabel(key)}: ${value}`);
+  const recommendation = buildTechnicalRecommendation(lead);
+  const recommendationLines = recommendation
+    ? [
+        "",
+        "Recomendacao tecnica inicial:",
+        `- Modelo base: ${recommendation.modelo}`,
+        `- Estrutura: ${recommendation.parede}`,
+        `- Onda: ${recommendation.onda}`,
+        `- Coluna minima / ECT: ${recommendation.ect}`,
+        `- BCT orientativo: ${recommendation.bct}`,
+        `- Papel sugerido: ${recommendation.papel}`,
+        `- Gramatura inicial: ${recommendation.gramatura}`,
+        `- Observacao: ${recommendation.observacao}`
+      ]
+    : [];
 
   return [
     "Perfeito. Recebemos suas informacoes.",
@@ -578,9 +605,171 @@ function buildFinalSummary(lead) {
     "",
     "Resumo para o comercial:",
     ...detailLines,
+    ...recommendationLines,
     "",
     "Nosso comercial vai continuar o atendimento por aqui."
   ].join("\n");
+}
+
+function normalizePrintingOption(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "1" || normalized.includes("sem")) return "Sem impressao";
+  if (normalized === "2" || normalized.includes("1 cor") || normalized.includes("uma cor")) return "1 cor";
+  if (normalized === "3" || normalized.includes("2 cor")) return "2 cores";
+  if (normalized === "4" || normalized.includes("3 cor")) return "3 cores";
+  if (normalized === "5" || normalized.includes("4 cor")) return "4 cores";
+  if (normalized === "6" || normalized.includes("premium") || normalized.includes("branco") || normalized.includes("marca")) {
+    return "Impressao premium em papelao branco para destacar a marca";
+  }
+  return value;
+}
+
+function buildTechnicalRecommendation(lead) {
+  if (!["known_model_needs_specs", "new_development"].includes(lead.subjectKey)) {
+    return null;
+  }
+
+  const details = lead.details || {};
+  const text = Object.values(details).join(" ").toLowerCase();
+  let tier = 1;
+  const motivos = [];
+
+  const weightClass = inferWeightClass(details.peso_produto || text);
+  if (weightClass === "medio") {
+    tier = Math.max(tier, 2);
+    motivos.push("peso intermediario");
+  }
+  if (weightClass === "alto") {
+    tier = Math.max(tier, 4);
+    motivos.push("peso alto");
+  }
+  if (weightClass === "pesado") {
+    tier = Math.max(tier, 6);
+    motivos.push("peso pesado");
+  }
+
+  if (includesAny(text, ["fragil", "vidro", "ceramica", "quebra", "eletronico"])) {
+    tier = Math.max(tier, 3);
+    motivos.push("produto sensivel");
+  }
+
+  if (includesAny(text, ["fracionada", "transportadora", "correios", "courier"])) {
+    tier += 1;
+    motivos.push("transporte com mais manuseio");
+  }
+
+  if (includesAny(text, ["palet", "6 ou mais", "empilhamento alto", "empilha alto"])) {
+    tier = Math.max(tier, 4);
+    motivos.push("empilhamento/paletizacao");
+  } else if (includesAny(text, ["3 a 5", "3-5", "empilha"])) {
+    tier = Math.max(tier + 1, 2);
+    motivos.push("empilhamento moderado");
+  }
+
+  if (includesAny(text, ["exportacao", "exportação"])) {
+    tier = Math.max(tier, 6);
+    motivos.push("exportacao");
+  }
+
+  if (includesAny(text, ["umido", "umidade", "camara fria", "câmara fria", "frio"])) {
+    tier = Math.max(tier + 1, 3);
+    motivos.push("umidade");
+  }
+
+  if (String(details.impressao || "").toLowerCase().includes("premium")) {
+    motivos.push("impressao premium");
+  }
+
+  tier = Math.max(0, Math.min(tier, 6));
+  const specs = [
+    {
+      parede: "Parede simples",
+      onda: "E",
+      ect: "3 a 5 kN/m",
+      bct: "Baixo",
+      papel: "Branco ou Kraft",
+      gramatura: "Liners 125 a 150 g/m² | Miolo 90 a 105 g/m²"
+    },
+    {
+      parede: "Parede simples",
+      onda: "B",
+      ect: "4 a 6 kN/m",
+      bct: "Baixo a moderado",
+      papel: "Kraft",
+      gramatura: "Liners 135 a 165 g/m² | Miolo 100 a 115 g/m²"
+    },
+    {
+      parede: "Parede simples",
+      onda: "B ou C",
+      ect: "5 a 7 kN/m",
+      bct: "Moderado",
+      papel: "Kraft",
+      gramatura: "Liners 150 a 200 g/m² | Miolo 105 a 125 g/m²"
+    },
+    {
+      parede: "Parede simples reforcada",
+      onda: "C",
+      ect: "6 a 8 kN/m",
+      bct: "Moderado a alto",
+      papel: "Kraft",
+      gramatura: "Liners 175 a 200 g/m² | Miolo 120 a 150 g/m²"
+    },
+    {
+      parede: "Parede dupla",
+      onda: "BC",
+      ect: "7 a 10 kN/m",
+      bct: "Alto",
+      papel: "Kraft",
+      gramatura: "Liners 175 a 250 g/m² | Miolos 120 a 150 g/m²"
+    },
+    {
+      parede: "Parede dupla reforcada",
+      onda: "BC",
+      ect: "9 a 12 kN/m",
+      bct: "Muito alto",
+      papel: "Kraft",
+      gramatura: "Liners 200 a 250+ g/m² | Miolos 140 a 170 g/m²"
+    },
+    {
+      parede: "Parede dupla ou tripla",
+      onda: "BC",
+      ect: "10 a 14+ kN/m",
+      bct: "Muito alto",
+      papel: "Kraft reforcado",
+      gramatura: "Liners 200 a 250+ g/m² | Miolos 150 a 200 g/m²"
+    }
+  ];
+
+  const selected = { ...specs[tier] };
+  if (String(details.impressao || "").toLowerCase().includes("premium") && tier <= 3) {
+    selected.papel = "Branco";
+    selected.onda = tier <= 1 ? "E" : selected.onda;
+  }
+
+  return {
+    modelo: details.modelo_fefco || (lead.subjectKey === "new_development" ? "A definir pelo projeto" : "Modelo informado pelo cliente"),
+    ...selected,
+    observacao: motivos.length
+      ? `Sugerido por ${motivos.join(", ")}. Validar medidas finais e viabilidade produtiva antes da proposta.`
+      : "Sugerido como ponto de partida. Validar medidas finais e viabilidade produtiva antes da proposta."
+  };
+}
+
+function inferWeightClass(value) {
+  const text = String(value || "").toLowerCase().replace(",", ".");
+  const match = text.match(/(\d+(?:\.\d+)?)/);
+  if (!match) return "";
+  const kg = Number(match[1]);
+  if (!Number.isFinite(kg)) return "";
+  if (kg <= 1) return "leve";
+  if (kg <= 5) return "medio";
+  if (kg <= 15) return "alto";
+  return "pesado";
+}
+
+function includesAny(value, patterns) {
+  const text = String(value || "").toLowerCase();
+  return patterns.some((pattern) => text.includes(pattern));
 }
 
 function formatLabel(value) {
