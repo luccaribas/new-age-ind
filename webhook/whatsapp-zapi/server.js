@@ -31,6 +31,66 @@ const SUBJECT_OPTIONS = [
   }
 ];
 
+const BOARD_CATALOG = [
+  { code: "2050-MME", wave: "E", color: "Pardo", resin: false, grammage: 334, ect: 3.5 },
+  { code: "2100-KME", wave: "E", color: "Pardo", resin: false, grammage: 354, ect: 4.0 },
+  { code: "2160-KKE", wave: "E", color: "Pardo", resin: false, grammage: 690, ect: 8.0 },
+  { code: "3050-MMB", wave: "B", color: "Pardo", resin: false, grammage: 341, ect: 3.5 },
+  { code: "3060-RRB", wave: "B", color: "Pardo", resin: false, grammage: 358, ect: 4.0 },
+  { code: "3100-RRB", wave: "B", color: "Pardo", resin: false, grammage: 377, ect: 4.5 },
+  { code: "3150-ARB", wave: "B", color: "Pardo", resin: false, grammage: 407, ect: 5.0 },
+  { code: "3200-KAB", wave: "B", color: "Pardo", resin: false, grammage: 388, ect: 4.5 },
+  { code: "3250-RRB", wave: "B", color: "Pardo", resin: false, grammage: 433, ect: 5.5 },
+  { code: "3300-KKB", wave: "B", color: "Pardo", resin: false, grammage: 428, ect: 5.0 },
+  { code: "3350-KRB", wave: "B", color: "Pardo", resin: false, grammage: 433, ect: 5.5 },
+  { code: "3450-KAB", wave: "B", color: "Pardo", resin: false, grammage: 466, ect: 6.0 },
+  { code: "3460-RRB", wave: "B", color: "Pardo", resin: false, grammage: 506, ect: 6.5 },
+  { code: "3500-KRB", wave: "B", color: "Pardo", resin: true, grammage: 498, ect: 6.5 },
+  { code: "3510-KRB", wave: "B", color: "Pardo", resin: false, grammage: 498, ect: 7.0 },
+  { code: "3550-KKB", wave: "B", color: "Pardo", resin: true, grammage: 506, ect: 6.0 },
+  { code: "3600-KRB", wave: "B", color: "Pardo", resin: false, grammage: 551, ect: 7.0 },
+  { code: "3640-RRB", wave: "B", color: "Pardo", resin: false, grammage: 579, ect: 7.0 },
+  { code: "3650-KKB", wave: "B", color: "Pardo", resin: false, grammage: 546, ect: 7.0 },
+  { code: "3780-KKB", wave: "B", color: "Pardo", resin: false, grammage: 589, ect: 7.5 },
+  { code: "3790-KKB", wave: "B", color: "Pardo", resin: false, grammage: 659, ect: 8.5 },
+  { code: "4050-WRB", wave: "B", color: "Branco", resin: false, grammage: 403, ect: 5.5 },
+  { code: "4100-WRB", wave: "B", color: "Branco", resin: true, grammage: 457, ect: 6.0 },
+  { code: "4150-WKB", wave: "B", color: "Branco", resin: true, grammage: 516, ect: 6.5 },
+  { code: "4190-WKB", wave: "B", color: "Branco", resin: true, grammage: 503, ect: 7.0 },
+  { code: "4200-WKB", wave: "B", color: "Branco", resin: false, grammage: 529, ect: 7.0 },
+  { code: "5050-MMC", wave: "C", color: "Pardo", resin: false, grammage: 356, ect: 3.5 },
+  { code: "5100-KAC", wave: "C", color: "Pardo", resin: false, grammage: 396, ect: 4.0 },
+  { code: "5150-KAC", wave: "C", color: "Pardo", resin: false, grammage: 445, ect: 5.5 },
+  { code: "5200-RRC", wave: "C", color: "Pardo", resin: false, grammage: 415, ect: 5.0 },
+  { code: "5300-KAC", wave: "C", color: "Pardo", resin: false, grammage: 482, ect: 6.5 },
+  { code: "5350-KRC", wave: "C", color: "Pardo", resin: true, grammage: 524, ect: 7.0 },
+  { code: "5400-RRC", wave: "C", color: "Pardo", resin: false, grammage: 503, ect: 6.5 },
+  { code: "5450-KKC", wave: "C", color: "Pardo", resin: true, grammage: 539, ect: 6.5 },
+  { code: "5550-KKC", wave: "C", color: "Pardo", resin: true, grammage: 589, ect: 7.0 },
+  { code: "5600-KKC", wave: "C", color: "Pardo", resin: false, grammage: 589, ect: 7.5 },
+  { code: "5650-KKC", wave: "C", color: "Pardo", resin: true, grammage: 659, ect: 8.0 },
+  { code: "7050-MMBC", wave: "BC", color: "Pardo", resin: false, grammage: 590, ect: 6.0 },
+  { code: "7100-RRBC", wave: "BC", color: "Pardo", resin: false, grammage: 619, ect: 7.0 },
+  { code: "7150-KABC", wave: "BC", color: "Pardo", resin: false, grammage: 644, ect: 7.5 },
+  { code: "7300-RRBC", wave: "BC", color: "Pardo", resin: true, grammage: 729, ect: 8.5 },
+  { code: "7350-KABC", wave: "BC", color: "Pardo", resin: false, grammage: 738, ect: 9.0 },
+  { code: "7400-KRBC", wave: "BC", color: "Pardo", resin: false, grammage: 818, ect: 10.5 },
+  { code: "7450-KKBC", wave: "BC", color: "Pardo", resin: true, grammage: 866, ect: 10.5 },
+  { code: "7500-KABC", wave: "BC", color: "Pardo", resin: false, grammage: 866, ect: 11.5 },
+  { code: "7550-KKBC", wave: "BC", color: "Pardo", resin: true, grammage: 948, ect: 11.5 },
+  { code: "7600-KKBC", wave: "BC", color: "Pardo", resin: true, grammage: 1053, ect: 12.5 },
+  { code: "7710-KKBC", wave: "BC", color: "Pardo", resin: true, grammage: 1122, ect: 15.5 },
+  { code: "7750-KKBC", wave: "BC", color: "Pardo", resin: true, grammage: 1190, ect: 18.5 },
+  { code: "8050-WRBC", wave: "BC", color: "Branco", resin: false, grammage: 694, ect: 8.0 },
+  { code: "8150-WKBC", wave: "BC", color: "Branco", resin: true, grammage: 762, ect: 10.0 },
+  { code: "8200-WKBC", wave: "BC", color: "Branco", resin: true, grammage: 931, ect: 11.5 },
+  { code: "8250-WKBC", wave: "BC", color: "Branco", resin: true, grammage: 991, ect: 12.0 },
+  { code: "8270-WKBC", wave: "BC", color: "Branco", resin: true, grammage: 1063, ect: 14.5 },
+  { code: "9100-KKBE", wave: "BE", color: "Pardo", resin: true, grammage: 817, ect: 11.0 },
+  { code: "9110-KKBE", wave: "BE", color: "Pardo", resin: true, grammage: 1078, ect: 14.5 },
+  { code: "9200-WKBE", wave: "BE", color: "Branco", resin: true, grammage: 1086, ect: 15.5 }
+];
+
 app.use(express.json({ limit: "1mb" }));
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
@@ -583,6 +643,7 @@ function buildFinalSummary(lead) {
         "",
         "Recomendacao tecnica inicial:",
         `- Modelo base: ${recommendation.modelo}`,
+        `- Chapa sugerida: ${recommendation.chapa}`,
         `- Estrutura: ${recommendation.parede}`,
         `- Onda: ${recommendation.onda}`,
         `- Coluna minima / ECT: ${recommendation.ect}`,
@@ -682,77 +743,62 @@ function buildTechnicalRecommendation(lead) {
 
   tier = Math.max(0, Math.min(tier, 6));
   const specs = [
-    {
-      parede: "Parede simples",
-      onda: "E",
-      ect: "3 a 5 kN/m",
-      bct: "Baixo",
-      papel: "Branco ou Kraft",
-      gramatura: "Liners 125 a 150 g/m² | Miolo 90 a 105 g/m²"
-    },
-    {
-      parede: "Parede simples",
-      onda: "B",
-      ect: "4 a 6 kN/m",
-      bct: "Baixo a moderado",
-      papel: "Kraft",
-      gramatura: "Liners 135 a 165 g/m² | Miolo 100 a 115 g/m²"
-    },
-    {
-      parede: "Parede simples",
-      onda: "B ou C",
-      ect: "5 a 7 kN/m",
-      bct: "Moderado",
-      papel: "Kraft",
-      gramatura: "Liners 150 a 200 g/m² | Miolo 105 a 125 g/m²"
-    },
-    {
-      parede: "Parede simples reforcada",
-      onda: "C",
-      ect: "6 a 8 kN/m",
-      bct: "Moderado a alto",
-      papel: "Kraft",
-      gramatura: "Liners 175 a 200 g/m² | Miolo 120 a 150 g/m²"
-    },
-    {
-      parede: "Parede dupla",
-      onda: "BC",
-      ect: "7 a 10 kN/m",
-      bct: "Alto",
-      papel: "Kraft",
-      gramatura: "Liners 175 a 250 g/m² | Miolos 120 a 150 g/m²"
-    },
-    {
-      parede: "Parede dupla reforcada",
-      onda: "BC",
-      ect: "9 a 12 kN/m",
-      bct: "Muito alto",
-      papel: "Kraft",
-      gramatura: "Liners 200 a 250+ g/m² | Miolos 140 a 170 g/m²"
-    },
-    {
-      parede: "Parede dupla ou tripla",
-      onda: "BC",
-      ect: "10 a 14+ kN/m",
-      bct: "Muito alto",
-      papel: "Kraft reforcado",
-      gramatura: "Liners 200 a 250+ g/m² | Miolos 150 a 200 g/m²"
-    }
+    { parede: "Parede simples", waves: ["E", "B"], targetEct: 4.0, bct: "Baixo" },
+    { parede: "Parede simples", waves: ["B"], targetEct: 5.0, bct: "Baixo a moderado" },
+    { parede: "Parede simples", waves: ["B", "C"], targetEct: 6.0, bct: "Moderado" },
+    { parede: "Parede simples reforcada", waves: ["C", "B"], targetEct: 7.0, bct: "Moderado a alto" },
+    { parede: "Parede dupla", waves: ["BC"], targetEct: 9.0, bct: "Alto" },
+    { parede: "Parede dupla reforcada", waves: ["BC", "BE"], targetEct: 11.5, bct: "Muito alto" },
+    { parede: "Parede dupla ou tripla", waves: ["BC", "BE"], targetEct: 14.5, bct: "Muito alto" }
   ];
 
-  const selected = { ...specs[tier] };
-  if (String(details.impressao || "").toLowerCase().includes("premium") && tier <= 3) {
-    selected.papel = "Branco";
-    selected.onda = tier <= 1 ? "E" : selected.onda;
-  }
+  const selectedSpec = specs[tier];
+  const needsWhite = String(details.impressao || "").toLowerCase().includes("premium");
+  const needsResin = includesAny(text, ["umido", "umidade", "camara fria", "câmara fria", "frio"]);
+  const board = selectBoard({
+    waves: needsWhite && tier <= 3 ? ["B", "E", "C"] : selectedSpec.waves,
+    minEct: selectedSpec.targetEct,
+    preferWhite: needsWhite,
+    preferResin: needsResin
+  });
+  const selected = {
+    parede: selectedSpec.parede,
+    onda: board?.wave || selectedSpec.waves[0],
+    ect: board ? `${board.ect.toFixed(1).replace(".", ",")} kN/m` : `${selectedSpec.targetEct.toFixed(1).replace(".", ",")} kN/m`,
+    bct: selectedSpec.bct,
+    papel: board ? `${board.color}${board.resin ? " com resina" : ""}` : needsWhite ? "Branco" : "Kraft",
+    gramatura: board ? `${board.grammage} g/m²` : "A definir pela chapa disponivel"
+  };
 
   return {
     modelo: details.modelo_fefco || (lead.subjectKey === "new_development" ? "A definir pelo projeto" : "Modelo informado pelo cliente"),
+    chapa: board ? board.code : "A definir",
     ...selected,
     observacao: motivos.length
-      ? `Sugerido por ${motivos.join(", ")}. Validar medidas finais e viabilidade produtiva antes da proposta.`
-      : "Sugerido como ponto de partida. Validar medidas finais e viabilidade produtiva antes da proposta."
+      ? `Chapa sugerida a partir da tabela New Age: ${board ? board.code : "a definir"}. Motivos: ${motivos.join(", ")}. Validar medidas finais e viabilidade produtiva antes da proposta.`
+      : `Chapa sugerida a partir da tabela New Age: ${board ? board.code : "a definir"}. Validar medidas finais e viabilidade produtiva antes da proposta.`
   };
+}
+
+function selectBoard({ waves, minEct, preferWhite, preferResin }) {
+  const allowedWaves = Array.isArray(waves) ? waves : [waves];
+  const normalizedWaves = allowedWaves.map((wave) => String(wave || "").toUpperCase());
+  const candidates = BOARD_CATALOG
+    .filter((board) => normalizedWaves.includes(board.wave))
+    .filter((board) => board.ect >= minEct)
+    .map((board) => {
+      let score = board.grammage;
+      if (preferWhite && board.color !== "Branco") score += 250;
+      if (!preferWhite && board.color === "Branco") score += 120;
+      if (preferResin && !board.resin) score += 150;
+      if (!preferResin && board.resin) score += 40;
+      return { board, score };
+    })
+    .sort((a, b) => a.score - b.score || a.board.ect - b.board.ect);
+
+  return candidates[0]?.board || BOARD_CATALOG
+    .filter((board) => normalizedWaves.includes(board.wave))
+    .sort((a, b) => b.ect - a.ect)[0] || null;
 }
 
 function inferWeightClass(value) {
