@@ -78,7 +78,7 @@
         <div class="section-heading">
           <span class="section-kicker">Configurador</span>
           <h2>Receba uma recomendação inicial em poucos cliques.</h2>
-          <p>Primeiro entendemos o uso real. Depois traduzimos isso em formato base, parede, onda, ECT, BCT orientativo, gramatura e tipo de papel para orientar a cotação.</p>
+          <p>Primeiro entendemos uso, peso, dimensões, umidade, alimento e empilhamento. Depois traduzimos isso em FEFCO 0201 ou 0427, onda B, C ou BC, faixa ECT, papel e necessidade de análise técnica.</p>
         </div>
         <div class="wizard-layout">
           <form id="guided-wizard" class="wizard-card">
@@ -92,14 +92,17 @@
                   <option value="alimento">Alimento / exigência sanitária</option>
                 </select>
               </label>
-              <label>Peso total por caixa
-                <select name="peso" required>
-                  <option value="">Selecionar</option>
-                  <option value="leve">Até 1 kg</option>
-                  <option value="medio">1 a 5 kg</option>
-                  <option value="alto">5 a 15 kg</option>
-                  <option value="pesado">Acima de 15 kg</option>
-                </select>
+              <label>Peso bruto por caixa (kg)
+                <input type="number" name="peso_kg" min="0.1" step="0.1" placeholder="Ex.: 12" required>
+              </label>
+              <label>Comprimento interno (mm)
+                <input type="number" name="comprimento_mm" min="50" step="1" placeholder="Ex.: 400" required>
+              </label>
+              <label>Largura interna (mm)
+                <input type="number" name="largura_mm" min="50" step="1" placeholder="Ex.: 300" required>
+              </label>
+              <label>Altura interna (mm)
+                <input type="number" name="altura_mm" min="20" step="1" placeholder="Ex.: 250" required>
               </label>
               <label>Fragilidade
                 <select name="fragilidade" required>
@@ -167,13 +170,13 @@
               </label>
             </div>
             <button class="btn btn-primary" type="submit">Gerar recomendação inicial</button>
-            <p class="microcopy">Preencha o configurador para receber uma direção inicial antes de seguir para a cotação.</p>
+            <p class="microcopy">A recomendação é uma triagem de pré-orçamento. Ela não promete BCT exato nem substitui ensaio físico quando houver trava técnica.</p>
           </form>
 
           <aside class="wizard-result" id="wizard-result">
             <span class="section-kicker">Resultado guiado</span>
             <h3>Preencha o configurador para ver a recomendação.</h3>
-            <p>Você verá formato base, parede, onda sugerida, faixa de ECT, BCT orientativo, papel indicado, gramatura inicial e o melhor próximo passo para avançar com a cotação.</p>
+            <p>Você verá formato base, onda sugerida, faixa ECT, papel indicado, restrições de BCT e se a análise técnica manual é obrigatória.</p>
           </aside>
         </div>
       </div>

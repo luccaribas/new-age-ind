@@ -1905,214 +1905,149 @@ function renderPortfolio(models) {
 }
 
 function buildRecommendation(data) {
-  const specTiers = [
-    {
-      parede: "Parede simples",
-      onda: "E",
-      ect: "3 a 5 kN/m",
-      bct: "Baixo",
-      gramatura: "Liners 125 a 150 g/m² | Miolo 90 a 105 g/m²"
-    },
-    {
-      parede: "Parede simples",
-      onda: "B",
-      ect: "4 a 6 kN/m",
-      bct: "Baixo a moderado",
-      gramatura: "Liners 135 a 165 g/m² | Miolo 100 a 115 g/m²"
-    },
-    {
-      parede: "Parede simples",
-      onda: "B ou C",
-      ect: "5 a 7 kN/m",
-      bct: "Moderado",
-      gramatura: "Liners 150 a 200 g/m² | Miolo 105 a 125 g/m²"
-    },
-    {
-      parede: "Parede simples reforçada",
-      onda: "C",
-      ect: "6 a 8 kN/m",
-      bct: "Moderado a alto",
-      gramatura: "Liners 175 a 200 g/m² | Miolo 120 a 150 g/m²"
-    },
-    {
-      parede: "Parede dupla",
-      onda: "BC",
-      ect: "7 a 10 kN/m",
-      bct: "Alto",
-      gramatura: "Liners 175 a 250 g/m² | Miolos 120 a 150 g/m² | Combinação para parede dupla"
-    },
-    {
-      parede: "Parede dupla reforçada",
-      onda: "BC",
-      ect: "9 a 12 kN/m",
-      bct: "Muito alto",
-      gramatura: "Liners 200 a 250+ g/m² | Miolos 140 a 170 g/m² | Combinação reforçada"
-    },
-    {
-      parede: "Parede dupla ou tripla",
-      onda: "BC",
-      ect: "10 a 14+ kN/m",
-      bct: "Muito alto",
-      gramatura: "Liners 200 a 250+ g/m² | Miolos 150 a 200 g/m² | Composição severa"
-    }
-  ];
+  const weight = Number(data.peso_kg || 0);
+  const length = Number(data.comprimento_mm || 0);
+  const width = Number(data.largura_mm || 0);
+  const height = Number(data.altura_mm || 0);
+  const longest = Math.max(length, width);
+  const shortest = Math.min(length || Infinity, width || Infinity);
+  const aspectRatio = shortest && Number.isFinite(shortest) ? longest / shortest : 1;
+  const dimensionSum = length + width + height;
+  const isEcommerce = data.uso === "ecommerce" || data.transporte === "courier";
+  const isB2B = ["industria", "armazenagem"].includes(data.uso) || ["paletizado", "exportacao"].includes(data.transporte);
+  const severeHumidity = data.umidade === "severa";
+  const humid = data.umidade === "umida" || severeHumidity;
+  const foodContact = data.contato_alimento === "sim";
+  const longStorage = data.armazenagem === "longa";
+  const heavyStacking = data.empilhamento === "alto";
 
+  let confidence = 100;
   let formato = getModelLabelByCode("0201");
-  let papel = "Kraft";
-  let Confiança = "Média";
-  let tier = 1;
+  let onda = "C";
+  let parede = "Parede simples";
+  let papel = "RECYCLED_TESTLINER";
+  let ect = "32 ECT | faixa orientativa 5.0 a 6.0 kN/m";
+  let gramatura = "Definir pela chapa comercial equivalente a faixa ECT recomendada";
+  let bct = "Nao emitir BCT pontual. McKee e apenas orientativo para FEFCO 0201 simples, sem recortes, com geometria dentro do limite.";
+  let requiresEngineeringReview = false;
   const motivos = [];
   const alertas = [];
 
-  if (data.uso === "ecommerce") {
-    formato = getModelLabelByCode("0427");
-    motivos.push("expedição unitária pede formato postal mais previsível");
-  }
-
-  if (data.uso === "ecommerce" && data.peso === "leve" && data.impressao === "premium") {
-    tier = 0;
-    papel = "Branco";
-    Confiança = "Alta";
-    motivos.push("prioridade para apresentação visual e envio unitário");
-  }
-
-  if (data.peso === "medio") {
-    tier = Math.max(tier, 2);
-    motivos.push("peso intermediário já pede chapa acima do básico");
-  }
-
-  if (data.peso === "alto") {
-    tier = Math.max(tier, 4);
-    formato = getModelLabelByCode("0201");
-    Confiança = "Alta";
-    motivos.push("carga mais alta pede migração para faixa estrutural reforçada");
-  }
-
-  if (data.peso === "pesado") {
-    tier = Math.max(tier, 6);
-    formato = "0201 reforçado ou projeto especial";
-    Confiança = "Média/Alta";
-    motivos.push("peso elevado exige composição bem mais conservadora");
-    alertas.push("cargas pesadas pedem validação técnica e, idealmente, teste físico");
-  }
-
-  if (data.fragilidade === "media") {
-    tier = Math.max(tier, 2);
-    motivos.push("produto sensível pede mais reserva de proteção");
-  }
-
-  if (data.fragilidade === "alta") {
-    tier = Math.max(tier, 3);
-    motivos.push("alta fragilidade exige margem maior de rigidez e amortecimento");
-  }
-
-  if (data.transporte === "fracionado") {
-    tier += 1;
-    motivos.push("carga fracionada aumenta risco de manuseio e pede reforço");
-  }
-
-  if (data.transporte === "paletizado") {
-    tier = Math.max(tier, 4);
-    formato = getModelLabelByCode("0201");
-    motivos.push("paletização exige melhor coluna e mais robustez de chapa");
-  }
-
-  if (data.transporte === "exportacao") {
-    tier = Math.max(tier, 6);
-    formato = "0201 reforçado ou projeto especial";
-    motivos.push("exportação pede reserva estrutural acima do padrão interno");
-    alertas.push("exportação pede validação técnica final com histórico ou ensaio");
-  }
-
-  if (data.empilhamento === "medio") {
-    tier += 1;
-    motivos.push("empilhamento intermediário já exige incremento de BCT e gramatura");
-  }
-
-  if (data.empilhamento === "alto") {
-    tier = Math.max(tier, 4);
-    motivos.push("empilhamento alto pede estrutura mais conservadora");
-  }
-
-  if (data.armazenagem === "media") {
-    tier += 1;
-    motivos.push("armazenagem prolongada pede reserva estrutural adicional");
-  }
-
-  if (data.armazenagem === "longa") {
-    tier += 2;
-    motivos.push("armazenagem longa exige chapa acima da faixa mínima");
-  }
-
-  if (data.umidade === "umida") {
-    tier += 1;
-    papel = papel === "Branco" ? "Branco com validação de umidade" : "Kraft";
-    motivos.push("umidade reduz desempenho real e pede reforço de especificação");
-    alertas.push("em ambiente úmido, a resistência real tende a cair e a recomendação deve ser confirmada comercialmente");
-  }
-
-  if (data.umidade === "severa") {
-    tier = Math.max(tier + 1, 4);
-    papel = "Kraft com barreira ou validação para umidade";
-    motivos.push("umidade severa ou câmara fria exigem especificação bem mais conservadora");
-    alertas.push("ambiente muito úmido pede teste ou histórico validado de campo");
-  }
-
-  if (data.prioridade === "custo") {
-    tier -= 1;
-    motivos.push("prioridade de custo tenta evitar excesso de material quando o risco permite");
-  }
-
-  if (data.prioridade === "protecao") {
-    tier += 1;
-    motivos.push("prioridade declarada de proteção aumenta a reserva estrutural");
-  }
-
-  if (data.uso === "alimento") {
-    papel = "Branco ou Kraft com validação de compliance";
-    motivos.push("avaliar conformidade para contato com alimento");
-    if (data.contato_alimento === "sim") {
-      alertas.push("contato direto com alimento exige validação do material conforme compliance sanitário do fornecedor");
+  if (foodContact || severeHumidity) {
+    papel = "VIRGIN_KRAFT";
+    motivos.push("Kraft virgem imposto por contato alimentar direto ou ambiente muito umido/frigorificado.");
+    if (foodContact) {
+      confidence -= 50;
+      requiresEngineeringReview = true;
+      alertas.push("Trava normativa: contato direto com alimento nao deve usar fibra reciclada. O sistema substituiu o papel por VIRGIN_KRAFT e exige revisao tecnica/comercial.");
     }
   }
 
-  if (data.impressao === "premium" && tier <= 1) {
-    papel = "Branco";
+  if (!foodContact && !humid && !["exportacao"].includes(data.transporte) && weight <= 15) {
+    papel = "RECYCLED_TESTLINER";
+    motivos.push("Uso seco, nao alimentar e sem severidade logistica permite composicao reciclada/testliner.");
   }
 
-  if (data.impressao === "premium" && formato.startsWith("0201")) {
-    motivos.push("se a arte for prioridade, avaliar micro-onda ou solução especial");
+  if ((humid && weight > 15) || data.transporte === "exportacao") {
+    papel = "VIRGIN_KRAFT";
+    motivos.push("Carga acima de 15 kg em umidade ou exportacao exige fibra longa Kraft por reserva estrutural.");
   }
 
-  if (data.impressao === "premium" && tier <= 2) {
-    motivos.push("impressão premium tende a puxar para liner de melhor superfície");
+  if (aspectRatio > 3) {
+    confidence -= 15;
+    requiresEngineeringReview = true;
+    alertas.push(`Trava geometrica: proporcao L/W ${aspectRatio.toFixed(1)} excede 3.0. Nao usar previsao simplificada de BCT/McKee sem analise tecnica.`);
   }
 
-  if (data.impressao === "simples") {
-    motivos.push("impressão simples permite equilíbrio entre custo e desempenho");
+  if (weight <= 5) {
+    onda = "B";
+    parede = "Parede simples";
+    ect = "23 a 26 ECT | faixa orientativa 4.0 a 4.5 kN/m";
+    gramatura = "Chapa leve de parede simples; gramatura deve seguir a faixa ECT 23-26 sem promessa de BCT exato.";
+    if (isEcommerce) {
+      formato = getModelLabelByCode("0427");
+      motivos.push("E-commerce leve favorece FEFCO 0427 por montagem, apresentacao e unboxing.");
+    } else {
+      formato = getModelLabelByCode("0201");
+      motivos.push("Carga leve B2B favorece FEFCO 0201 por custo e eficiencia industrial.");
+    }
+  } else if (weight <= 15) {
+    onda = isEcommerce ? "C" : "C";
+    parede = "Parede simples";
+    ect = "32 ECT | faixa orientativa 5.0 a 6.0 kN/m";
+    gramatura = "Chapa media de parede simples; gramatura deve seguir a faixa ECT 32.";
+    if (isEcommerce) {
+      formato = getModelLabelByCode("0427");
+      confidence -= 10;
+      alertas.push("FEFCO 0427 entre 5 e 15 kg e uma recomendacao com ressalva: validar abas, vincos e fundo antes de producao.");
+      motivos.push("E-commerce moderado ainda pode usar 0427, mas com controle mais rigoroso de fundo e travas.");
+    } else {
+      formato = getModelLabelByCode("0201");
+      motivos.push("Carga de 5 a 15 kg em B2B/paletizado favorece FEFCO 0201 com Onda C.");
+    }
+  } else if (weight <= 25) {
+    formato = getModelLabelByCode("0201");
+    onda = isEcommerce || data.fragilidade === "alta" || data.transporte === "fracionado" || heavyStacking ? "BC" : "C";
+    parede = onda === "BC" ? "Parede dupla" : "Parede simples reforcada";
+    ect = "40 a 44 ECT | faixa orientativa 7.0 a 8.0 kN/m";
+    gramatura = "Chapa pesada; considerar Onda C robusta ou BC conforme fragilidade, manuseio e empilhamento.";
+    motivos.push("Acima de 15 kg o motor bloqueia o 0427 como recomendacao primaria e migra para FEFCO 0201.");
+    if (isEcommerce) {
+      papel = "VIRGIN_KRAFT";
+      confidence -= 30;
+      requiresEngineeringReview = true;
+      alertas.push("Trava mecanica: carga acima de 15 kg em fluxo e-commerce nao deve ser direcionada para FEFCO 0427. Recomendacao revertida para 0201 com Onda BC e VIRGIN_KRAFT.");
+    }
+  } else {
+    formato = getModelLabelByCode("0201");
+    onda = "BC";
+    parede = "Parede dupla";
+    papel = "VIRGIN_KRAFT";
+    ect = "48+ ECT | superior a 8.5 kN/m";
+    gramatura = "Chapa dupla severa em Kraft; gramatura final depende de ensaio, historico ou aprovacao tecnica.";
+    confidence -= 10;
+    requiresEngineeringReview = true;
+    alertas.push("Carga acima de 25 kg exige parede dupla BC, Kraft e analise tecnica obrigatoria.");
+    motivos.push("Condição limite de peso exige FEFCO 0201 com barreira dupla BC.");
   }
 
-  tier = Math.max(0, Math.min(tier, specTiers.length - 1));
-
-  if (data.impressao === "premium" && tier >= 2 && tier <= 3) {
-    specTiers[tier] = {
-      ...specTiers[tier],
-      onda: "E ou B",
-      gramatura: "Liners 150 a 200 g/m² | Miolo 105 a 125 g/m²"
-    };
+  if (dimensionSum > 1000 && String(formato).includes("0427")) {
+    formato = getModelLabelByCode("0201");
+    confidence -= 20;
+    requiresEngineeringReview = true;
+    alertas.push("Trava dimensional: soma C+L+A acima de 1000 mm penaliza FEFCO 0427 e exige reavaliacao do formato.");
   }
 
-  const selectedSpec = specTiers[tier];
+  if (longStorage || severeHumidity) {
+    motivos.push("Armazenagem longa ou umidade severa exige fator de seguranca logistico maior.");
+    if (!requiresEngineeringReview && (heavyStacking || weight > 15)) {
+      requiresEngineeringReview = true;
+      alertas.push("Empilhamento/armazenagem em condicao severa exige validacao tecnica antes de promessa de desempenho.");
+    }
+  }
+
+  if (data.impressao === "premium" && weight <= 5 && isEcommerce) {
+    motivos.push("Impressao premium em e-commerce leve favorece superficie mais plana, mantendo Onda B como base do motor.");
+  }
+
+  if (data.prioridade === "custo" && confidence >= 80 && !foodContact && !humid) {
+    motivos.push("Prioridade de custo mantida apenas quando nao conflita com peso, alimento, umidade ou geometria.");
+  }
+
+  confidence = Math.max(0, Math.min(100, Math.round(confidence)));
+  if (confidence < 60) requiresEngineeringReview = true;
 
   return {
     formato,
-    parede: selectedSpec.parede,
-    onda: selectedSpec.onda,
-    ect: selectedSpec.ect,
-    bct: selectedSpec.bct,
+    parede,
+    onda,
+    ect,
+    bct,
     papel,
-    gramatura: selectedSpec.gramatura,
-    Confiança,
+    gramatura,
+    Confiança: `${confidence}%`,
+    confidenceScore: confidence,
+    requiresEngineeringReview,
     resumo: motivos.join("; "),
     alertas
   };
@@ -2129,6 +2064,9 @@ function applyRecommendationToForm(recommendation) {
   if (!state.selectedModels.length && recommendation.formato.includes("0201")) {
     toggleModelSelection(getModelLabelByCode("0201"));
   }
+  if (!state.selectedModels.length && recommendation.formato.includes("0427")) {
+    toggleModelSelection(getModelLabelByCode("0427"));
+  }
 
   modelSpecsContainer?.querySelectorAll(".model-spec-card").forEach((card) => {
     const onda = card.querySelector('[data-spec="onda"]');
@@ -2137,9 +2075,9 @@ function applyRecommendationToForm(recommendation) {
     const gramatura = card.querySelector('[data-spec="gramatura"]');
     const normalizedPaper = recommendation.papel.includes("Branco")
       ? "Branco"
-      : recommendation.papel.includes("Reciclado")
+      : recommendation.papel.includes("Reciclado") || recommendation.papel.includes("RECYCLED")
         ? "Reciclado"
-        : recommendation.papel.includes("Kraft")
+        : recommendation.papel.includes("Kraft") || recommendation.papel.includes("KRAFT")
           ? "Kraft"
           : "";
     const normalizedWave = recommendation.onda.includes("BC")
@@ -2163,7 +2101,7 @@ function applyRecommendationToForm(recommendation) {
 }
 
 function renderRecommendation(recommendation) {
-  state.wizardRecommendation = `${recommendation.formato} | ${recommendation.parede} | Onda ${recommendation.onda} | ECT ${recommendation.ect} | BCT ${recommendation.bct} | Papel ${recommendation.papel} | Gramatura ${recommendation.gramatura} | Confiança ${recommendation.Confiança} | ${recommendation.resumo}`;
+  state.wizardRecommendation = `${recommendation.formato} | ${recommendation.parede} | Onda ${recommendation.onda} | ECT ${recommendation.ect} | BCT ${recommendation.bct} | Papel ${recommendation.papel} | Gramatura ${recommendation.gramatura} | Confiança ${recommendation.Confiança} | Revisão técnica ${recommendation.requiresEngineeringReview ? "sim" : "não"} | ${recommendation.resumo}`;
   if (wizardRecommendationField) wizardRecommendationField.value = state.wizardRecommendation;
   if (!wizardResult) return;
 
@@ -2183,6 +2121,7 @@ function renderRecommendation(recommendation) {
       <div class="recommendation-item"><strong>BCT orientativo</strong><span>${recommendation.bct}</span></div>
       <div class="recommendation-item"><strong>Papel sugerido</strong><span>${recommendation.papel}</span></div>
       <div class="recommendation-item"><strong>Gramatura inicial</strong><span>${recommendation.gramatura}</span></div>
+      <div class="recommendation-item"><strong>Revisão técnica</strong><span>${recommendation.requiresEngineeringReview ? "Obrigatória" : "Não obrigatória nesta triagem"}</span></div>
     </div>
     <p>${normalizeBrokenText(recommendation.resumo || "Recomendação baseada em uso, risco logístico, empilhamento e nível de impressão.")}</p>
     ${alerts}
