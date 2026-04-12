@@ -381,7 +381,8 @@
         render();
       } catch (error) {
         console.error(error);
-        setStatus("warn", "Falha ao conectar. Confira a chave e o deploy.");
+        const message = String(error && error.message ? error.message : error || "");
+        setStatus("warn", message.includes("401") ? "Chave interna invalida" : "Falha ao conectar. Verifique CSP, chave ou deploy.");
       }
     }
 

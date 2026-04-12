@@ -28,7 +28,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://www.google-analytics.com https://region1.google-analytics.com https://connect.facebook.net https://graph.facebook.com https://api.z-api.io; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://www.google-analytics.com https://region1.google-analytics.com https://connect.facebook.net https://graph.facebook.com https://api.z-api.io https://new-age-private-leads-api.onrender.com https://new-age-whatsapp-zapi.onrender.com; upgrade-insecure-requests"
         }
       ]
     }
