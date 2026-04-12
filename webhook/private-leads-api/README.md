@@ -1,19 +1,27 @@
 # Private Leads API
 
-Backend privado para substituir o Apps Script na captura de leads do site.
+Backend privado para leads, eventos de navegacao e painel comercial da New Age.
 
 ## Objetivo
 
-- receber os formulários do site
+- receber formularios do site
 - validar origem, CNPJ, telefone e anti-spam
-- armazenar os leads em backend privado
+- armazenar leads fora do front-end
+- registrar page views, cliques, WhatsApp, catalogo, calculadora e envios
 - expor leitura apenas com chave interna
+- encaminhar leads para planilha quando `PRIVATE_SHEETS_WEBHOOK` estiver configurado
 
-## Rotas
+## Rotas publicas por origem autorizada
 
 - `GET /health`
 - `POST /api/leads`
+- `POST /api/events`
+
+## Rotas privadas com `X-API-Key`
+
 - `GET /api/leads`
+- `GET /api/events`
+- `GET /api/analytics`
 
 ## 1. Instalar
 
@@ -37,7 +45,7 @@ Copie `.env.example` para `.env` e preencha:
 npm run dev
 ```
 
-## 4. Teste de saúde
+## 4. Teste de saude
 
 ```powershell
 Invoke-RestMethod -Uri http://localhost:3030/health -Method Get
@@ -49,24 +57,33 @@ Invoke-RestMethod -Uri http://localhost:3030/health -Method Get
 Invoke-RestMethod -Uri http://localhost:3030/api/leads -Method Post -ContentType "application/json" -Headers @{"Origin"="https://www.newage.ind.br"} -Body '{"nome":"Teste","empresa":"Empresa Teste","cnpj":"00000000000000","telefone":"11999999999","tipo_embalagem":"Padrao FEFCO","time_to_submit_ms":9000,"page_url":"https://www.newage.ind.br/orcamento-rapido/index.html"}'
 ```
 
-## 6. Teste de leitura interna
+## 6. Teste de evento
 
 ```powershell
-Invoke-RestMethod -Uri http://localhost:3030/api/leads -Method Get -Headers @{"X-API-Key"="SUA_CHAVE_INTERNA"}
+Invoke-RestMethod -Uri http://localhost:3030/api/events -Method Post -ContentType "application/json" -Headers @{"Origin"="https://www.newage.ind.br"} -Body '{"event_name":"page_view","page_url":"https://www.newage.ind.br/","page_path":"/","device_type":"desktop"}'
 ```
 
-## Persistência
+## 7. Teste do painel
 
-Por padrão, os leads são armazenados em:
+```powershell
+Invoke-RestMethod -Uri http://localhost:3030/api/analytics -Method Get -Headers @{"X-API-Key"="SUA_CHAVE_INTERNA"}
+```
+
+## Persistencia
+
+Por padrao, o backend armazena:
 
 - `data/leads.json`
+- `data/events.json`
 
-Se `PRIVATE_SHEETS_WEBHOOK` estiver preenchido, o backend também encaminha cada lead para a planilha.
+Esses arquivos ficam ignorados pelo Git. Para producao mais robusta, o proximo passo e trocar JSON local por banco persistente ou CRM.
 
-Isso permite:
+## Painel
 
-- manter o endpoint da planilha fora do front
-- continuar com backup local no backend
-- centralizar a segurança no servidor
+Depois do deploy, acesse:
 
-Para produção mais robusta, o próximo passo continua sendo banco ou CRM.
+```text
+https://www.newage.ind.br/painel-controle/
+```
+
+Cole a `INTERNAL_API_KEY` no campo do painel. A chave fica salva apenas no navegador usado para acessar o painel.

@@ -2,6 +2,7 @@
   whatsappNumber: "551129378810",
   businessEmail: "",
   formEndpoint: "https://new-age-private-leads-api.onrender.com/api/leads",
+  analyticsEndpoint: "https://new-age-private-leads-api.onrender.com/api/events",
   gaMeasurementId: "",
   metaPixelId: ""
 };
@@ -396,26 +397,80 @@ function openGuideModal(code) {
 function trackEvent(eventName, payload = {}) {
   if (typeof window.gtag === "function") window.gtag("event", eventName, payload);
   if (typeof window.fbq === "function") window.fbq("trackCustom", eventName, payload);
+  const eventPayload = buildAnalyticsEvent(eventName, payload);
   try {
     const stored = JSON.parse(localStorage.getItem(LEAD_EVENTS_KEY) || "[]");
-    stored.push({ eventName, payload, createdAt: new Date().toISOString() });
+    stored.push({ eventName, payload, createdAt: eventPayload.created_at });
     localStorage.setItem(LEAD_EVENTS_KEY, JSON.stringify(stored.slice(-250)));
   } catch (error) {
     console.warn("Falha ao salvar evento local.", error);
   }
+  sendAnalyticsEvent(eventPayload);
 }
 
 async function submitToEndpoint(data) {
   if (runtimeConfig.formEndpoint && isTrustedEndpoint(runtimeConfig.formEndpoint)) {
-    await fetch(runtimeConfig.formEndpoint, {
+    const response = await fetch(runtimeConfig.formEndpoint, {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      mode: "cors",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `Falha ao enviar lead: ${response.status}`);
+    }
     return true;
   }
   return false;
+}
+
+function buildAnalyticsEvent(eventName, payload = {}) {
+  const utm = getUrlParams();
+  return {
+    event_name: eventName,
+    created_at: new Date().toISOString(),
+    page_url: window.location.href,
+    page_path: window.location.pathname,
+    page_title: document.title,
+    referrer: document.referrer || "",
+    device_type: getDeviceType(),
+    screen_size: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+    language: navigator.language || "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+    utm_source: utm.utm_source || "",
+    utm_medium: utm.utm_medium || "",
+    utm_campaign: utm.utm_campaign || "",
+    payload
+  };
+}
+
+function sendAnalyticsEvent(eventPayload) {
+  const endpoint = runtimeConfig.analyticsEndpoint || deriveAnalyticsEndpoint(runtimeConfig.formEndpoint);
+  if (!endpoint || !isTrustedEndpoint(endpoint)) return;
+
+  const body = JSON.stringify(eventPayload);
+  try {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "text/plain;charset=utf-8" });
+      if (navigator.sendBeacon(endpoint, blob)) return;
+    }
+  } catch (error) {
+    // Fallback to fetch below.
+  }
+
+  fetch(endpoint, {
+    method: "POST",
+    mode: "cors",
+    keepalive: true,
+    headers: { "Content-Type": "application/json" },
+    body
+  }).catch(() => {});
+}
+
+function deriveAnalyticsEndpoint(formEndpoint) {
+  if (!formEndpoint) return "";
+  return String(formEndpoint).replace(/\/api\/leads\/?$/, "/api/events");
 }
 
 function buildDashboardMetrics() {
@@ -682,7 +737,7 @@ function persistLead(data) {
 }
 
 function trackPageContext() {
-  trackEvent("page_view_local", {
+  trackEvent("page_view", {
     page_path: window.location.pathname,
     page_title: document.title,
     device_type: getDeviceType(),
@@ -708,7 +763,11 @@ function isTrustedEndpoint(value) {
   if (!isValidHttpUrl(value)) return false;
   try {
     const parsed = new URL(value);
-    return parsed.protocol === "https:" && (parsed.hostname === "script.google.com" || parsed.hostname.endsWith(".newage.ind.br"));
+    return parsed.protocol === "https:" && (
+      parsed.hostname === "script.google.com" ||
+      parsed.hostname.endsWith(".newage.ind.br") ||
+      parsed.hostname === "new-age-private-leads-api.onrender.com"
+    );
   } catch (error) {
     return false;
   }
